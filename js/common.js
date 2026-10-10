@@ -147,3 +147,30 @@ function postCover(p) {
 }
 
 document.addEventListener('DOMContentLoaded', () => Site.init());
+
+/* ---------- Invoice-style document (price list, estimates, quotes) ----------
+ * o = { title, sub, meta: [[label, value]], lines: [[label, amount, desc?]],
+ *       sums: [[label, value, cls?]], notes: html, stamp: {text, small, tone}, after: html }
+ * Labels may start with a code like "BRAND-01 …"; it goes in its own column.
+ * Strings are expected to be translated already (or translated later by apply()). */
+function invoiceHtml(o) {
+  const cfg = window.STUDIO_CONFIG || {};
+  const split = l => { const m = String(l).match(/^([A-Z]+(?:-[A-Z0-9]+)+)\s+(.*)$/); return m ? [m[1], m[2]] : ['', String(l)]; };
+  const rows = (o.lines || []).map(l => { const [code, label] = split(l[0]); return { code, label, amount: l[1], desc: l[2] || '' }; });
+  const hasCode = rows.some(r => r.code);
+  return `<article class="inv doc">
+    <header class="inv-top">
+      <div class="inv-from"><span class="gh inv-logo" aria-hidden="true"></span><div><b>${esc(cfg.name || 'WHETŪ STUDIO')}</b><span>Aotearoa, New Zealand</span></div></div>
+      <div class="inv-title"><h3>${o.title}</h3><span>${o.sub || ''}</span></div>
+    </header>
+    <dl class="inv-meta">${(o.meta || []).map(m => `<div><dt>${m[0]}</dt><dd>${m[1]}</dd></div>`).join('')}</dl>
+    <div class="inv-scroll"><table class="inv-t">
+      <thead><tr>${hasCode ? '<th>Code</th>' : ''}<th>Item</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>${rows.map(r => `<tr>${hasCode ? `<td class="c">${esc(r.code)}</td>` : ''}<td><b>${esc(tr(r.label))}</b>${r.desc ? `<span>${r.desc}</span>` : ''}</td><td class="amt${typeof r.amount === 'number' && r.amount < 0 ? ' neg' : ''}">${typeof r.amount === 'number' ? money(r.amount) : esc(r.amount)}</td></tr>`).join('') || `<tr><td colspan="3">—</td></tr>`}</tbody>
+    </table></div>
+    <div class="inv-foot">
+      <div class="inv-notes">${o.notes || ''}${o.stamp ? `<div class="inv-stamp ${o.stamp.tone || ''}" aria-hidden="true"><span>${o.stamp.text}</span>${o.stamp.small ? `<small>${o.stamp.small}</small>` : ''}</div>` : ''}</div>
+      <div class="inv-sum">${(o.sums || []).map(s => `<p class="${s[2] || ''}"><span>${s[0]}</span><span>${s[1]}</span></p>`).join('')}</div>
+    </div>${o.after || ''}
+  </article>`;
+}

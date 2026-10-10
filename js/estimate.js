@@ -15,49 +15,15 @@
   const D = k => S.d[k] || '', has = (k, v) => [].concat(S.d[k] || []).includes(v), sv = k => S.svc.includes(k);
 
   const STEPS = ['Your business', 'Services', 'Service details', 'Look and feel', 'Timing and budget', 'Your estimate', 'Send request'];
-  const SV = [['logo', 'Logo', '$490'], ['brand', 'Brand identity', '$1,090'], ['web', 'Website', '$1,690'], ['brochure', 'Brochure (4 pages)', '$390'], ['social', 'Social set (4 assets)', '$240'], ['card', 'Business card', '$180'], ['app', 'App UI/UX', 'Quoted'], ['space', 'Space & signage', 'Quoted'], ['mkt', 'Ongoing marketing', 'Quoted']];
+  const SV = Pricing.SV;
   const NZ = ['Auckland', 'Waikato', 'Bay of Plenty', 'Wellington', 'Canterbury', 'Otago', 'Another NZ region', 'Outside NZ'];
   const PAL = { 'Black and white': ['#000', '#fff', '#6b6b6b', '#d9d9d9'], 'Earthy': ['#8a5a3c', '#c19a6b', '#6b705c', '#e9dcc3', '#3d2b1f'], 'Bright': ['#ff3b30', '#ffcc00', '#34c759', '#0a84ff', '#af52de'], 'Soft and light': ['#f4e4e1', '#e3ecf4', '#eef2e3', '#f6efe0', '#e6e0f0'], 'Deep and rich': ['#0b2545', '#5a1a2b', '#14452f', '#2d1b4e', '#1a1a1a'], 'Open to suggestions': [], 'I have brand colours': [] };
   const FNT = { 'Clean sans-serif': ['Inter,sans-serif', 'Aa', 'Modern and clear'], 'Elegant serif': ['"Playfair Display",serif', 'Aa', 'Refined and classic'], 'Handmade': ['Caveat,cursive', 'Aa', 'Personal and crafted'], 'Bold and chunky': ['"Archivo Black",sans-serif', 'Aa', 'Loud and confident'], 'Open to suggestions': ['inherit', '?', 'Designer decides'] };
   const OK = [1, 4, 5, 2, 3, 7, 8, 1];
 
-  /* ---------- pricing ---------- */
-  function wk() {
-    let lo = 0, hi = 0;
-    const a = (l, h) => { lo += l; hi += h; };
-    if (sv('brand')) a(3, 4); else if (sv('logo')) a(2, 3);
-    if (sv('web')) { a(4, 6); const p = D('pages') || '5'; if (p != '9+' && +p > 5) a(.5 * (+p - 5), +p - 5); }
-    if (sv('brochure')) a(1, 2);
-    if (sv('social')) a(1, 1);
-    if (sv('card') && !sv('brand')) a(1, 1);
-    if (sv('brand') && sv('web')) { lo -= 1; hi -= 1; }
-    return [Math.ceil(lo), Math.ceil(hi)];
-  }
-  function calc() {
-    const L = [], M = [], d = S.d;
-    if (sv('brand')) L.push(['BRAND-01 Brand Starter', 1090]); else if (sv('logo')) L.push(['LOGO-01 Logo Essential', 490]);
-    if (sv('web')) {
-      L.push(['WEB-05 Website, up to 5 pages', 1690]);
-      const p = D('pages') || '5';
-      if (p == '9+') M.push('Website with 9 or more pages');
-      else { const x = +p - 5; if (x) L.push([`WEB-EXTRA ${x} extra page${x > 1 ? 's' : ''} × $180`, x * 180]); }
-      if (['Online store', 'Membership', 'Custom functionality'].includes(D('w_type'))) M.push('Website type: ' + D('w_type').toLowerCase());
-      if ([].concat(d.w_int || []).some(i => i != 'None')) M.push('Website integrations');
-      if (D('w_content').startsWith('None')) M.push('Copywriting');
-      if (['SEO', 'Accessibility review', 'Advanced animation', 'Analytics set-up', 'Multiple languages'].some(x => has('w_extra', x))) M.push('Website extras (SEO, accessibility, languages, analytics or animation)');
-    }
-    if (sv('brochure')) L.push(['BROCHURE-04 Four-page brochure', 390]);
-    if (sv('social')) L.push(['SOCIAL-04 Four static assets', 240]);
-    if (sv('card') && !sv('brand')) L.push(['CARD-01 Business card', 180]);
-    if (sv('brand') && sv('web')) L.push(['Launch bundle adjustment (LAUNCH-01 $2,290)', -490]);
-    if (D('b_guide') == 'Full brand guidelines') M.push('Full brand guidelines');
-    if (sv('app')) M.push('App UI/UX');
-    if (sv('space')) M.push('Space and signage');
-    if (sv('mkt')) M.push('Ongoing marketing plan');
-    if (D('deadline') == 'Priority request') M.push('Priority deadline');
-    const sub = L.reduce((a, b) => a + b[1], 0);
-    return { L, M: [...new Set(M)], sub, gst: sub * .15, tot: sub * 1.15 };
-  }
+  /* ---------- pricing (prices live in js/pricing.js) ---------- */
+  const wk = () => Pricing.weeks(S.svc, S.d);
+  const calc = () => Pricing.calc(S.svc, S.d);
   function incl() {
     const a = [];
     if (sv('brand')) a.push('Origin brief, two initial logo directions with rationale, colour and type, mini guide, business card, three illustrative mockups, final logo files');
@@ -127,9 +93,15 @@
     if (c == 4) h = `<h3>Timing and budget.</h3>${orb('This helps your designer check capacity. A budget is optional and doesn\'t change the price.')}` + F('deadline', 'When do you need it?', 'c', ['Flexible', 'A planned month', 'Priority request'], 'Priority requests are reviewed by hand.') + F('date', 'Target date or month', 't') + F('why_date', 'What is driving that date?', 't') + F('budget', 'Budget range (optional)', 'c', ['Under $1,000', '$1,000 to $2,500', '$2,500 to $5,000', '$5,000+', 'Not sure']) + F('who', 'Who makes the final decision?', 'c', ['Just me', 'Me and a partner', 'A team']) + F('approve', 'How quickly can you review each round?', 'c', ['Within 2 days', 'Within a week', 'Slower']) + F('more', 'Anything else your designer should know?', 'a') + F('how', 'How did you hear about us? (optional)', 't') + nav('See my estimate');
     if (c == 5) {
       const r = calc(), i = incl();
-      h = `<h3>Here's an initial estimate based on what you've told me.</h3><div class="ticket"><div class="h"><span>YOUR PROJECT ESTIMATE · ${S.cid}</span><span>NZD</span></div><div class="h" style="padding-top:0"><span>${esc(D('biz')) || 'Your business'}</span></div>${r.L.map(l => `<div class="l"><span>${l[0]}</span><span>${money(l[1])}</span></div>`).join('') || '<div class="l"><span>No fixed-price items yet</span><span>-</span></div>'}${r.L.length ? `<div class="l t"><span>INDICATIVE SUBTOTAL</span><span>${money(r.sub)}</span></div><div class="l"><span>GST (15%)</span><span>${money(r.gst)}</span></div><div class="l t"><span>INDICATIVE TOTAL</span><span class="big">${money(r.tot)}</span></div>` : ''}${tl()}</div>
-      ${r.M.length ? `<div class="flag"><b>Additional scope review needed</b><ul style="margin:6px 0 0;padding-left:18px">${r.M.map(m => `<li>${m}</li>`).join('')}</ul>These are quoted separately. No total is shown for them.</div>` : ''}
-      <div class="cols"><div><b>What's included</b><ul>${i.map(x => `<li>${x}</li>`).join('') || '<li>Confirmed once scoped</li>'}</ul><p>Two in-scope revision rounds on your chosen direction.</p></div><div><b>Not included</b><ul><li>Domain, hosting and paid tools</li><li>Anything marked above</li></ul></div></div>
+      const [lo, hi] = wk();
+      h = `<h3>Here's an initial estimate based on what you've told me.</h3>` + invoiceHtml({
+        title: 'ESTIMATE', sub: 'Indicative · NZD',
+        meta: [['Estimate no.', S.cid], ['Bill to', esc(D('biz')) || 'Your business'], ['Date', fmtDate(Date.now())], ['Timeline', lo || hi ? `${lo == hi ? lo : lo + '–' + hi} weeks` : '—']],
+        lines: r.L,
+        notes: r.M.length ? `<b>Additional scope review needed</b><ul>${r.M.map(m => `<li>${m}</li>`).join('')}</ul><p>These are quoted separately. No total is shown for them.</p>` : '<b>Notes</b><p>Two in-scope revision rounds on your chosen direction.</p>',
+        sums: r.L.length ? [['Subtotal', money(r.sub)], ['GST (15%)', money(r.gst)], ['Indicative total', money(r.tot), 'tot']] : [],
+        stamp: { text: 'DRAFT', small: 'A DESIGNER CHECKS IT NEXT', tone: 'grey' }
+      }) + `<div class="cols"><div><b>What's included</b><ul>${i.map(x => `<li>${x}</li>`).join('') || '<li>Confirmed once scoped</li>'}</ul><p>Two in-scope revision rounds on your chosen direction.</p></div><div><b>Not included</b><ul><li>Domain, hosting and paid tools</li><li>Anything marked above</li></ul></div></div>
       <p class="note" style="margin-top:22px">A free initial estimate with an indicative timeline. Once our team approves it, we start designing. It isn't an agreed quote until then. A professional designer checks the details before any payment is requested. No automatic checkout.</p><div class="acts"><button class="link" data-n="-1">Edit my answers</button><button class="btn" data-n="1">Request my official quote ↗</button></div>`;
     }
     if (c == 6) h = `<h3>Send your quote request.</h3>${orb('Last step. Now I just need your details so your quote has somewhere to go.')}<div class="ticket">${sum()}</div>` + F('name', 'Your name', 't') + F('email', 'Email', 't') + F('role', 'Your role', 't') + F('refs', 'Reference links (optional)', 't')

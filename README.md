@@ -52,7 +52,7 @@ ADMIN_PASSWORD='긴-비밀번호' npm start      # http://localhost:8080
 ## 바꿔야 할 것
 
 - **스튜디오 이름·연락처**: `js/config.js`
-- **가격**: `js/estimate.js`의 `SV`(시작가)와 `calc()`(항목별 금액), 홈 가격표는 `index.html`
+- **가격**: `js/pricing.js` 한 곳에서 바꾸면 첫 화면 실시간 견적과 견적 폼에 같이 반영돼요. 홈의 가격표(인보이스)는 `index.html`
 - **추가 수정 회차 가격 / 포함 횟수**: `js/workflow.js`의 `CFG`
 - **블로그·포트폴리오**: `admin.html` → Journal / Work에서 작성·편집. 지금 들어있는 글과 프로젝트는 모두 **샘플**이에요 (`js/data/seed.js`).
 - **이메일 알림**: 지금은 서버 콘솔에 "누구에게 무엇을 보낼지"만 출력돼요 (`server/server.js`의 `notify()`). Resend, Postmark 같은 서비스를 연결하면 고객에게 접속 코드·새 메시지 알림을 보낼 수 있어요.
@@ -67,6 +67,7 @@ js/    config.js           설정
        workflow.js          프로젝트 단계 규칙 — 브라우저와 서버가 같이 씀
        api.js               데이터 저장 (서버 모드 / 데모 모드 자동 선택)
        common.js            헤더·푸터·언어·마크다운
+       pricing.js           가격·일정 계산 (첫 화면 + 견적 폼 공용)
        home.js estimate.js content.js login.js portal.js admin.js project-ui.js
        data/seed.js         샘플 블로그 글·프로젝트
 server/server.js           의존성 없는 Node 서버 + API

@@ -116,27 +116,35 @@ const PUI = {
   estimate(r) {
     const e = r.estimate || {};
     if (!e.lines || !e.lines.length) return '';
-    return `<div class="cp-tk"><div class="l"><span>${T('est_t')}</span><span>NZD</span></div>
-      ${e.lines.map(l => `<div class="l"><span>${esc(tr(l[0]))}</span><span>${money(l[1])}</span></div>`).join('')}
-      <div class="l t"><span>${T('est_tot')}</span><span>${money(e.tot)}</span></div>
-      ${(e.manual || []).length ? `<div class="l"><span>${T('est_sep')}</span><span>${e.manual.map(m => esc(tr(m))).join(', ')}</span></div>` : ''}</div>`;
+    const w = e.weeks && e.weeks[1] ? (e.weeks[0] === e.weeks[1] ? e.weeks[0] : e.weeks[0] + '–' + e.weeks[1]) : '';
+    return invoiceHtml({
+      title: T('inv_est'), sub: T('inv_est_sub'),
+      meta: [[T('inv_no'), 'EST-' + esc(r.id.slice(4))], [T('inv_bill'), `<span data-no-tr>${esc(r.biz)}</span>`], [T('inv_date'), fmtDate(r.createdAt)], [T('q_time'), w ? T('inv_weeks', w) : '—']],
+      lines: e.lines.map(l => [l[0], l[1]]),
+      notes: (e.manual || []).length ? `<b>${T('est_sep')}</b><ul>${e.manual.map(m => `<li>${esc(tr(m))}</li>`).join('')}</ul>` : `<b>${tr('Notes')}</b><p>${T('inv_est_note')}</p>`,
+      sums: [[T('q_sub'), money(e.sub)], [T('q_gst'), money(e.gst)], [T('q_tot'), money(e.tot), 'tot']],
+      stamp: { text: T('inv_draft'), small: T('inv_draft_s'), tone: 'grey' }
+    });
   },
 
   quote(r) {
     const q = r.quote;
     if (!q) return '';
     const lst = s => s ? `<ul>${s.split('\n').map(x => x.replace(/^[-•*]\s*/, '').trim()).filter(Boolean).map(x => `<li data-no-tr>${esc(x)}</li>`).join('')}</ul>` : '';
-    return `<div class="cp-tk"><div class="l"><span>${esc(q.id)} · v${q.version}</span><span>NZD</span></div>
-      ${q.lines.map(l => `<div class="l"><span data-no-tr>${esc(l.label)}</span><span>${money(l.amount)}</span></div>`).join('')}
-      <div class="l t"><span>${T('q_sub')}</span><span>${money(q.sub)}</span></div>
-      <div class="l"><span>${T('q_gst')}</span><span>${money(q.gst)}</span></div>
-      <div class="l t"><span>${T('q_tot')}</span><span class="big">${money(q.total)}</span></div>
-      <div class="l"><span>${T('q_dep')}</span><span>${money(q.total / 2)}</span></div>
-      <div class="l"><span>${T('q_bal')}</span><span>${money(q.total / 2)}</span></div>
-      ${q.weeks ? `<div class="l"><span>${T('q_time')}</span><span data-no-tr>${esc(q.weeks)}</span></div>` : ''}</div>
-      ${q.includes || q.excludes ? `<div class="cols"><div><b>${T('q_inc')}</b>${lst(q.includes)}</div><div><b>${T('q_exc')}</b>${lst(q.excludes)}</div></div>` : ''}
-      ${q.notes ? `<div class="flag"><b>${T('q_notes')}</b><p style="margin:6px 0 0;white-space:pre-wrap" data-no-tr>${esc(q.notes)}</p></div>` : ''}
-      <div class="cols"><div><b>${T('q_terms')}</b><ul>${T('q_terms_l').map(x => `<li>${x}</li>`).join('')}</ul></div></div>`;
+    const notes = [
+      q.notes ? `<div><b>${T('q_notes')}</b><p data-no-tr style="white-space:pre-wrap">${esc(q.notes)}</p></div>` : '',
+      q.includes ? `<div><b>${T('q_inc')}</b>${lst(q.includes)}</div>` : '',
+      q.excludes ? `<div><b>${T('q_exc')}</b>${lst(q.excludes)}</div>` : ''
+    ].join('');
+    const accepted = !!r.acceptedAt && ['accepted', 'active', 'approved', 'complete'].includes(r.status);
+    return invoiceHtml({
+      title: T('inv_quote'), sub: `v${q.version} · NZD`,
+      meta: [[T('inv_no'), esc(q.id)], [T('inv_bill'), `<span data-no-tr>${esc(r.biz)}<br><small>${esc(r.client.name || '')}</small></span>`], [T('inv_issued'), fmtDate(q.publishedAt)], [T('inv_valid'), fmtDate(q.validUntil)]],
+      lines: q.lines.map(l => [l.label, l.amount]),
+      notes: notes + (q.weeks ? `<div><b>${T('q_time')}</b><p data-no-tr>${esc(q.weeks)}</p></div>` : ''),
+      sums: [[T('q_sub'), money(q.sub)], [T('q_gst'), money(q.gst)], [T('q_tot'), money(q.total), 'tot'], [T('q_dep'), money(q.total / 2)], [T('q_bal'), money(q.total / 2), 'muted']],
+      stamp: accepted ? { text: T('inv_acc'), small: fmtDate(r.acceptedAt), tone: 'green' } : { text: T('inv_appr'), small: T('inv_appr_s') }
+    }) + `<div class="cols"><div><b>${T('q_terms')}</b><ul>${T('q_terms_l').map(x => `<li>${x}</li>`).join('')}</ul></div></div>`;
   },
 
   // Uploads a FileList one by one; returns the new file ids.

@@ -36,3 +36,43 @@
   draw();
   Site.onLang(draw);
 })();
+
+// Hero: tap services, see a live mini invoice, then carry the choice into the estimate form.
+(function () {
+  const box = $('#hq');
+  if (!box) return;
+  const offered = ['logo', 'brand', 'web', 'brochure', 'social', 'card'];
+  let svc = ['brand', 'web'];
+  const split = l => { const m = l.match(/^([A-Z]+(?:-[A-Z0-9]+)+)\s+(.*)$/); return m ? [m[1], m[2]] : ['', l]; };
+  function draw() {
+    $('#hq-chips').innerHTML = Pricing.SV.filter(s => offered.includes(s[0])).map(s => `<button type="button" class="chip" data-s="${s[0]}" aria-pressed="${svc.includes(s[0])}">${s[1]}<small>${s[2]}</small></button>`).join('');
+    const r = Pricing.calc(svc), [lo, hi] = Pricing.weeks(svc);
+    $('#hq-lines').innerHTML = r.L.length
+      ? r.L.map(l => { const [c, t] = split(l[0]); return `<p><span><span class="c">${c}</span>${t}</span><span class="${l[1] < 0 ? 'neg' : ''}">${money(l[1])}</span></p>`; }).join('')
+      : '<p class="empty">Tap a service to see your price</p>';
+    $('#hq-sum').innerHTML = r.L.length
+      ? `<p><span>Subtotal</span><span>${money(r.sub)}</span></p><p><span>GST (15%)</span><span>${money(r.gst)}</span></p><p class="tot"><span>Total</span><span>${money(r.tot)}</span></p><p class="wk"><span>Timeline</span><span>${lo == hi ? lo : lo + '–' + hi} weeks</span></p>`
+      : '';
+    apply(box);
+  }
+  box.addEventListener('click', e => {
+    const b = e.target.closest('[data-s]');
+    if (!b) return;
+    const k = b.dataset.s, i = svc.indexOf(k);
+    i < 0 ? svc.push(k) : svc.splice(i, 1);
+    // Logo is part of Brand identity; picking one replaces the other.
+    if (i < 0 && k === 'brand') svc = svc.filter(x => x !== 'logo');
+    if (i < 0 && k === 'logo') svc = svc.filter(x => x !== 'brand');
+    draw();
+  });
+  $('#hq-go').addEventListener('click', () => {
+    // Hand the picked services to the estimate form (step 2: Services).
+    try {
+      const st = JSON.parse(localStorage.getItem('whetu.estimate') || 'null') || {};
+      const fresh = !st.svc || st.sent;
+      localStorage.setItem('whetu.estimate', JSON.stringify(Object.assign(fresh ? { d: {} } : st, { svc: svc.slice(), step: 0, sent: false })));
+    } catch (e) { /* storage blocked: the form simply starts empty */ }
+  });
+  draw();
+  Site.onLang(draw);
+})();

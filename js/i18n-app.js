@@ -27,11 +27,23 @@ Object.assign(I18N, {
   'Have a project in mind?': ['생각 중인 프로젝트가 있나요?', '有项目想法吗？'], 'See your price and timeline in minutes.': ['몇 분 만에 가격과 일정을 확인하세요.', '几分钟内查看价格和时间。'],
   'More from the journal': ['저널 더 보기', '更多日志'],
   'This project could not be found.': ['프로젝트를 찾을 수 없어요.', '找不到该项目。'], 'This post could not be found.': ['글을 찾을 수 없어요.', '找不到该文章。'],
+  // hero
+  'Independent design studio · Aotearoa NZ': ['독립 디자인 스튜디오 · 뉴질랜드', '独立设计工作室 · 新西兰'],
+  'Logos, brands and websites for small businesses.': ['작은 비즈니스를 위한 로고, 브랜드, 웹사이트.', '为小企业打造标志、品牌和网站。'],
+  'Tap what you need and see the price right now. A real designer confirms it, then everything happens in one private online portal. No meetings.': ['필요한 것을 누르면 가격이 바로 보여요. 실제 디자이너가 확인한 뒤, 모든 진행은 하나의 비공개 온라인 포털에서 이뤄져요. 미팅은 없어요.', '点选所需服务，立即看到价格。真人设计师确认后，所有流程都在一个专属在线门户中完成。无需开会。'],
+  'Pick services': ['서비스 선택', '选择服务'], 'See price and timeline': ['가격과 일정 확인', '查看价格和时间'], 'A designer confirms': ['디자이너가 확정', '设计师确认'],
+  'Launch bundle saving': ['런칭 패키지 할인', '发布套餐优惠'], 'Brand Starter': ['브랜드 스타터', '品牌入门'], 'Website, up to 5 pages': ['웹사이트 (최대 5페이지)', '网站（最多 5 页）'], 'Logo Essential': ['로고 에센셜', '标志基础版'], 'Four-page brochure': ['4페이지 브로셔', '四页宣传册'], 'Four static assets': ['정적 이미지 4종', '四张静态素材'],
+  'LIVE ESTIMATE': ['실시간 견적', '实时估价'], 'Continue with these ↗': ['이대로 견적 이어가기 ↗', '以此继续估价 ↗'],
+  'Indicative. Nothing is charged until you accept a confirmed quote.': ['참고용 금액이에요. 확정 견적을 수락하기 전에는 비용이 청구되지 않아요.', '仅供参考。接受确定报价前不会收取任何费用。'],
+  'Tap a service to see your price': ['서비스를 누르면 가격이 보여요', '点选服务即可查看价格'],
   // pricing invoice
   'PRICE LIST': ['가격표', '价目表'], 'Starting prices · NZD': ['시작 가격 · NZD', '起步价格 · NZD'],
   'Invoice no.': ['인보이스 번호', '发票编号'], 'Bill to': ['청구 대상', '收件方'], 'Issued': ['발행일', '开具日期'], 'Terms': ['조건', '条款'],
   'Your business': ['고객님의 비즈니스', '您的企业'], '50% deposit · 50% before final files': ['계약금 50% · 최종 파일 전 50%', '50% 定金 · 交付前 50%'],
-  'Code': ['코드', '编号'], 'Item': ['항목', '项目'], 'Rounds': ['수정', '修改'], 'From': ['시작가', '起价'], 'save $490': ['$490 할인', '节省 $490'],
+  'Code': ['코드', '编号'], 'Item': ['항목', '项目'], 'Amount': ['금액', '金额'],
+  'ESTIMATE': ['예상 견적', '估价'], 'Indicative · NZD': ['참고용 · NZD', '参考 · NZD'], 'Estimate no.': ['견적 번호', '估价编号'], 'Date': ['날짜', '日期'], 'Timeline': ['일정', '时间'],
+  'Subtotal': ['소계', '小计'], 'Indicative total': ['예상 합계', '参考总价'], 'DRAFT': ['초안', '草稿'], 'A DESIGNER CHECKS IT NEXT': ['다음 단계: 디자이너 확인', '下一步：设计师核对'],
+  'Quoted separately': ['별도 견적', '单独报价'], 'weeks': ['주', '周'], 'Rounds': ['수정', '修改'], 'From': ['시작가', '起价'], 'save $490': ['$490 할인', '节省 $490'],
   'Notes': ['참고', '备注'], 'Prices exclude GST (15%). Extra revision rounds are $150 each. Domain, hosting and paid tools are separate.': ['가격은 GST(15%) 별도예요. 추가 수정은 회당 $150이에요. 도메인, 호스팅, 유료 도구는 별도예요.', '价格不含 GST（15%）。额外修改每轮 $150。域名、主机和付费工具另计。'],
   'Example: Complete Launch': ['예시: Complete Launch', '示例：Complete Launch'], 'GST (15%)': ['GST (15%)', 'GST (15%)'], 'Total': ['합계', '总计'],
   'Deposit due on acceptance': ['수락 시 계약금', '接受时应付定金'],
@@ -54,6 +66,9 @@ Object.assign(I18N, {
 const AT = {
   en: {
     signin_again: 'Please sign in again.',
+    inv_quote: 'QUOTE', inv_est: 'ESTIMATE', inv_est_sub: 'Indicative · NZD', inv_no: 'No.', inv_bill: 'Bill to', inv_issued: 'Issued', inv_valid: 'Valid until', inv_date: 'Date',
+    inv_weeks: w => `${w} weeks`, inv_est_note: 'Indicative until your designer confirms it. Nothing is charged before you accept.',
+    inv_draft: 'DRAFT', inv_draft_s: 'NOT YET CONFIRMED', inv_appr: 'APPROVED', inv_appr_s: 'BY YOUR DESIGNER', inv_acc: 'ACCEPTED',
     // statuses
     st_new: 'New request', st_reviewing: 'In review', st_quoted: 'Quote ready', st_accepted: 'Waiting for deposit', st_active: 'In design',
     st_approved: 'Waiting for final payment', st_complete: 'Complete', st_declined: 'Declined', st_cancelled: 'Closed',
@@ -155,6 +170,9 @@ const AT = {
 
   ko: {
     signin_again: '다시 로그인해 주세요.',
+    inv_quote: '견적서', inv_est: '예상 견적', inv_est_sub: '참고용 · NZD', inv_no: '번호', inv_bill: '청구 대상', inv_issued: '발행일', inv_valid: '유효기간', inv_date: '날짜',
+    inv_weeks: w => `${w}주`, inv_est_note: '디자이너가 확인하기 전까지는 참고용 금액이에요. 수락 전에는 비용이 청구되지 않아요.',
+    inv_draft: '초안', inv_draft_s: '아직 확정 전', inv_appr: '승인됨', inv_appr_s: '담당 디자이너', inv_acc: '수락됨',
     st_new: '신규 요청', st_reviewing: '검토 중', st_quoted: '견적 도착', st_accepted: '계약금 대기', st_active: '디자인 진행 중',
     st_approved: '잔금 대기', st_complete: '완료', st_declined: '거절됨', st_cancelled: '종료됨',
     stage_1: '요청 접수', stage_2: '견적', stage_3: '계약금', stage_4: '디자인', stage_5: '최종 결제', stage_6: '인도',
@@ -245,6 +263,9 @@ const AT = {
 
   zh: {
     signin_again: '请重新登录。',
+    inv_quote: '报价单', inv_est: '估价', inv_est_sub: '参考 · NZD', inv_no: '编号', inv_bill: '收件方', inv_issued: '开具日期', inv_valid: '有效期至', inv_date: '日期',
+    inv_weeks: w => `${w} 周`, inv_est_note: '在设计师确认前仅供参考。接受前不会收取任何费用。',
+    inv_draft: '草稿', inv_draft_s: '尚未确认', inv_appr: '已批准', inv_appr_s: '由您的设计师', inv_acc: '已接受',
     st_new: '新请求', st_reviewing: '审核中', st_quoted: '报价已出', st_accepted: '待付定金', st_active: '设计中',
     st_approved: '待付尾款', st_complete: '已完成', st_declined: '已拒绝', st_cancelled: '已关闭',
     stage_1: '已提交请求', stage_2: '报价', stage_3: '定金', stage_4: '设计', stage_5: '尾款支付', stage_6: '交付',
