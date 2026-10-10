@@ -44,6 +44,21 @@
   const offered = ['logo', 'brand', 'web', 'brochure', 'social', 'card'];
   let svc = ['brand', 'web'];
   const split = l => { const m = l.match(/^([A-Z]+(?:-[A-Z0-9]+)+)\s+(.*)$/); return m ? [m[1], m[2]] : ['', l]; };
+  // The total rolls to its new value so the price visibly updates live.
+  let last = 0, raf = 0;
+  function count(to) {
+    const el = $('#hq-tot');
+    if (!el) { last = 0; return; }
+    const from = last, t0 = performance.now(), dur = matchMedia('(prefers-reduced-motion:reduce)').matches ? 0 : 450;
+    cancelAnimationFrame(raf);
+    el.parentElement.classList.remove('flash'); void el.offsetWidth; el.parentElement.classList.add('flash');
+    const step = t => {
+      const k = dur ? Math.min(1, (t - t0) / dur) : 1, e = 1 - Math.pow(1 - k, 3);
+      el.textContent = money(Math.round((from + (to - from) * e) * 100) / 100);
+      if (k < 1) raf = requestAnimationFrame(step); else last = to;
+    };
+    raf = requestAnimationFrame(step);
+  }
   function draw() {
     $('#hq-chips').innerHTML = Pricing.SV.filter(s => offered.includes(s[0])).map(s => `<button type="button" class="chip" data-s="${s[0]}" aria-pressed="${svc.includes(s[0])}">${s[1]}<small>${s[2]}</small></button>`).join('');
     const r = Pricing.calc(svc), [lo, hi] = Pricing.weeks(svc);
@@ -51,9 +66,10 @@
       ? r.L.map(l => { const [c, t] = split(l[0]); return `<p><span><span class="c">${c}</span>${t}</span><span class="${l[1] < 0 ? 'neg' : ''}">${money(l[1])}</span></p>`; }).join('')
       : '<p class="empty">Tap a service to see your price</p>';
     $('#hq-sum').innerHTML = r.L.length
-      ? `<p><span>Subtotal</span><span>${money(r.sub)}</span></p><p><span>GST (15%)</span><span>${money(r.gst)}</span></p><p class="tot"><span>Total</span><span>${money(r.tot)}</span></p><p class="wk"><span>Timeline</span><span>${lo == hi ? lo : lo + '–' + hi} weeks</span></p>`
+      ? `<p><span>GST (15%)</span><span>${money(r.gst)}</span></p><p><span>Timeline</span><span>${lo == hi ? lo : lo + '–' + hi} weeks</span></p><p class="tot"><span>Total</span><span id="hq-tot" data-no-tr>${money(last)}</span></p>`
       : '';
     apply(box);
+    count(r.tot);
   }
   box.addEventListener('click', e => {
     const b = e.target.closest('[data-s]');

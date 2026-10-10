@@ -84,37 +84,33 @@ html[lang=ko] .hero h1.tag, html[lang=zh-Hans] .hero h1.tag { line-height: 1.25;
 #pricing { background: var(--warm1); }
 .inv + .note { max-width: 960px; margin-inline: auto; }
 
-/* ---------- hero: what we do + live mini estimate ---------- */
-.hero { justify-content: center; padding: 110px 0 90px; }
-.hero-in { position: relative; z-index: 2; display: grid; grid-template-columns: 1.1fr minmax(320px, 440px); gap: clamp(32px, 6vw, 96px); align-items: center; width: 100%; }
-.hero-eb { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; opacity: .65; margin: 0 0 20px; }
-.hero-h { font: 700 clamp(40px, 6.2vw, 92px)/.95 "Bricolage Grotesque", Inter, sans-serif; letter-spacing: -.05em; color: #f2f2f2; text-wrap: balance; max-width: 11em; }
-.hero-p { font-size: clamp(17px, 1.5vw, 20px); color: #cfcfcf; max-width: 36em; margin: 26px 0 0; }
-.hero-steps { list-style: none; padding: 0; margin: 34px 0 0; display: flex; gap: 10px 26px; flex-wrap: wrap; font-size: 15px; color: #e6e6e6; }
-.hero-steps li { display: flex; align-items: center; gap: 10px; }
-.hero-steps b { width: 28px; height: 28px; border: 1px solid rgba(255,255,255,.45); border-radius: 50%; display: grid; place-items: center; font-size: 13px; }
-html[lang=ko] .hero-h, html[lang=zh-Hans] .hero-h { line-height: 1.12; letter-spacing: -.03em; }
+/* ---------- hero: one live invoice in the middle, the star glowing behind ---------- */
+.hero { justify-content: center; padding: 100px 16px 80px; }
+.hero-in { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 22px; width: 100%; }
+.hero-live { margin: 0; display: inline-flex; align-items: center; gap: 12px; font: 800 clamp(22px, 3vw, 40px)/1 Inter, sans-serif; letter-spacing: .02em; color: #f2f2f2; }
+.hero-live i { width: 14px; height: 14px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 0 0 rgba(255,59,48,.6); animation: live 1.6s ease-out infinite; }
+@keyframes live { 0% { box-shadow: 0 0 0 0 rgba(255,59,48,.55); } 70%, 100% { box-shadow: 0 0 0 14px rgba(255,59,48,0); } }
 
-.hero-card { background: #fff; color: #000; padding: 22px 24px 20px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7); font-variant-numeric: tabular-nums; position: relative; }
+.hero-card { width: min(440px, 100%); background: #fff; color: #000; padding: 20px 22px 22px; box-shadow: 0 30px 90px -18px rgba(0,0,0,.85); font-variant-numeric: tabular-nums; position: relative; }
 .hero-card::after { content: ""; position: absolute; left: 0; right: 0; bottom: -9px; height: 10px; background: radial-gradient(circle at 5px 0, transparent 5px, #fff 5.5px) 0 0/10px 10px repeat-x; transform: rotate(180deg); }
-.hq-top { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .12em; font-weight: 600; padding-bottom: 12px; border-bottom: 2px solid #000; }
-.hq-chips { gap: 6px; margin: 14px 0 6px; }
+/* the star stays behind the invoice: big enough to show around its edges */
+.hero .ghost { height: min(96%, 940px); filter: blur(10px) brightness(.55); opacity: .95; }
+.hero .shadow { height: min(110%, 1080px); }
+.hq-top { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .12em; font-weight: 700; padding-bottom: 12px; border-bottom: 2px solid #000; }
+.hq-chips { gap: 6px; margin: 14px 0 6px; justify-content: center; }
 .hq-chips .chip { font-size: 13px; padding: 7px 11px; }
 .hq-chips .chip small { display: inline; font-size: 11px; margin-left: 4px; }
 .hq-lines { margin-top: 8px; min-height: 64px; }
-.hq-lines p { display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 7px 0; border-bottom: 1px dashed rgba(0,0,0,.2); font-size: 14px; }
-.hq-lines .c { font: 11px ui-monospace, Menlo, monospace; opacity: .6; margin-right: 8px; }
+.hq-lines p { display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 7px 0; border-bottom: 1px dashed rgba(0,0,0,.2); font-size: 14px; animation: rowin .25s ease-out; }
+@keyframes rowin { from { opacity: 0; transform: translateY(-4px); } }
+.hq-lines .c { font: 11px ui-monospace, Menlo, monospace; opacity: .55; margin-right: 8px; }
 .hq-lines .neg { color: var(--ok); }
 .hq-lines .empty { justify-content: center; opacity: .55; border: 0; padding: 18px 0; }
-.hq-sum p { display: flex; justify-content: space-between; margin: 0; padding: 5px 0; font-size: 14px; }
-.hq-sum .tot { border-top: 2px solid #000; margin-top: 8px; padding-top: 10px; font: 700 26px "Bricolage Grotesque"; letter-spacing: -.03em; }
-.hq-sum .wk { opacity: .7; }
+.hq-sum p { display: flex; justify-content: space-between; margin: 0; padding: 4px 0; font-size: 13px; opacity: .7; }
+.hq-sum .tot { opacity: 1; border-top: 2px solid #000; margin-top: 8px; padding-top: 10px; font: 700 30px "Bricolage Grotesque"; letter-spacing: -.03em; align-items: baseline; }
+.hq-sum .tot small { font: 500 12px Inter, sans-serif; letter-spacing: 0; opacity: .6; }
+.hq-sum .tot.flash span:last-child { animation: flash .5s ease-out; }
+@keyframes flash { from { color: #ff3b30; } }
 .hq-go { display: block; text-align: center; margin-top: 14px; }
-.hq-note { font-size: 12px; opacity: .6; margin: 10px 0 0; }
 #hd:not(.lt) .hero-card .btn { background: #000; color: #fff; }
-
-@media (max-width: 900px) {
-  .hero { min-height: 0; padding: 100px 0 80px; }
-  .hero-in { grid-template-columns: 1fr; }
-  .hero-card { max-width: 480px; }
-}
+@media (prefers-reduced-motion: reduce) { .hero-live i, .hq-lines p, .hq-sum .tot.flash span:last-child { animation: none; } }

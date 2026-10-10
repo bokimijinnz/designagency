@@ -33,6 +33,7 @@ Object.assign(I18N, {
   'Tap what you need and see the price right now. A real designer confirms it, then everything happens in one private online portal. No meetings.': ['필요한 것을 누르면 가격이 바로 보여요. 실제 디자이너가 확인한 뒤, 모든 진행은 하나의 비공개 온라인 포털에서 이뤄져요. 미팅은 없어요.', '点选所需服务，立即看到价格。真人设计师确认后，所有流程都在一个专属在线门户中完成。无需开会。'],
   'Pick services': ['서비스 선택', '选择服务'], 'See price and timeline': ['가격과 일정 확인', '查看价格和时间'], 'A designer confirms': ['디자이너가 확정', '设计师确认'],
   'Launch bundle saving': ['런칭 패키지 할인', '发布套餐优惠'], 'Brand Starter': ['브랜드 스타터', '品牌入门'], 'Website, up to 5 pages': ['웹사이트 (최대 5페이지)', '网站（最多 5 页）'], 'Logo Essential': ['로고 에센셜', '标志基础版'], 'Four-page brochure': ['4페이지 브로셔', '四页宣传册'], 'Four static assets': ['정적 이미지 4종', '四张静态素材'],
+  'REAL LIVE INVOICE': ['실시간 라이브 인보이스', '实时在线报价单'], 'Get this quote ↗': ['이 견적 받기 ↗', '获取此报价 ↗'],
   'LIVE ESTIMATE': ['실시간 견적', '实时估价'], 'Continue with these ↗': ['이대로 견적 이어가기 ↗', '以此继续估价 ↗'],
   'Indicative. Nothing is charged until you accept a confirmed quote.': ['참고용 금액이에요. 확정 견적을 수락하기 전에는 비용이 청구되지 않아요.', '仅供参考。接受确定报价前不会收取任何费用。'],
   'Tap a service to see your price': ['서비스를 누르면 가격이 보여요', '点选服务即可查看价格'],
