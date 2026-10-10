@@ -87,9 +87,10 @@ html[lang=ko] .hero h1.tag, html[lang=zh-Hans] .hero h1.tag { line-height: 1.25;
 /* ---------- hero: one live invoice in the middle, the star glowing behind ---------- */
 .hero { justify-content: center; padding: 100px 16px 80px; }
 .hero-in { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 22px; width: 100%; }
-.hero-live { margin: 0; display: inline-flex; align-items: center; gap: 12px; font: 800 clamp(22px, 3vw, 40px)/1 Inter, sans-serif; letter-spacing: .02em; color: #f2f2f2; }
-.hero-live i { width: 14px; height: 14px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 0 0 rgba(255,59,48,.6); animation: live 1.6s ease-out infinite; }
-@keyframes live { 0% { box-shadow: 0 0 0 0 rgba(255,59,48,.55); } 70%, 100% { box-shadow: 0 0 0 14px rgba(255,59,48,0); } }
+.hq-live { display: inline-flex; align-items: center; gap: 6px; color: #e0261b; }
+.hq-live i { width: 7px; height: 7px; border-radius: 50%; background: #ff3b30; animation: live 1.6s ease-out infinite; }
+@keyframes live { 0% { box-shadow: 0 0 0 0 rgba(255,59,48,.55); } 70%, 100% { box-shadow: 0 0 0 7px rgba(255,59,48,0); } }
+.hq-lead { margin: 14px 0 0; text-align: center; text-wrap: balance; font: 700 20px/1.2 "Bricolage Grotesque", Inter, sans-serif; letter-spacing: -.02em; }
 
 .hero-card { width: min(440px, 100%); background: #fff; color: #000; padding: 20px 22px 22px; box-shadow: 0 30px 90px -18px rgba(0,0,0,.85); font-variant-numeric: tabular-nums; position: relative; }
 .hero-card::after { content: ""; position: absolute; left: 0; right: 0; bottom: -9px; height: 10px; background: radial-gradient(circle at 5px 0, transparent 5px, #fff 5.5px) 0 0/10px 10px repeat-x; transform: rotate(180deg); }
@@ -113,4 +114,4 @@ html[lang=ko] .hero h1.tag, html[lang=zh-Hans] .hero h1.tag { line-height: 1.25;
 @keyframes flash { from { color: #ff3b30; } }
 .hq-go { display: block; text-align: center; margin-top: 14px; }
 #hd:not(.lt) .hero-card .btn { background: #000; color: #fff; }
-@media (prefers-reduced-motion: reduce) { .hero-live i, .hq-lines p, .hq-sum .tot.flash span:last-child { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .hq-live i, .hq-lines p, .hq-sum .tot.flash span:last-child { animation: none; } }
