@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Client Login | WHETŪ Studio</title>
+<meta name="description" content="Sign in to My Studio to see your quote, messages, designs and files.">
+<link rel="icon" href="assets/img/mascot.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Bricolage+Grotesque:wght@500;700;800&family=Playfair+Display:wght@500;700&family=Caveat:wght@500;700&family=Archivo+Black&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/portal.css">
+</head>
+<body data-page="login">
+<header id="hd"></header>
+<main>
+  <section class="page-top cp"><div class="w">
+    <div class="lab"><a href="index.html">← Back to the studio</a></div>
+    <h2>CLIENT LOGIN.</h2>
+    <form class="cp-login" id="lf" novalidate>
+      <p class="lead">Sign in with the email you used for your quote request and the access code we gave you.</p>
+      <label class="fl-l" for="em">Email</label>
+      <input id="em" type="email" autocomplete="email" placeholder="name@business.co.nz" required>
+      <label class="fl-l" for="cd">Access code</label>
+      <input id="cd" type="text" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="e.g. K7Q2MX" required style="text-transform:uppercase;letter-spacing:.12em">
+      <div class="err" id="er" role="alert"></div>
+      <div class="acts" style="margin-top:14px"><button class="btn" type="submit">Log in ↗</button></div>
+      <p class="note" style="margin-top:26px">Lost your code? Email us from the address you used and we will resend it.</p>
+      <p class="note">No project yet? <a href="estimate.html">Get an estimate ↗</a></p>
+      <p class="note" id="demo" hidden>Demo mode: projects are saved in this browser only.</p>
+    </form>
+  </div></section>
+</main>
+<footer id="ft"></footer>
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/i18n-app.js"></script>
+<script src="js/workflow.js"></script>
+<script src="js/api.js"></script>
+<script src="js/common.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+/* ==========================================================================
+   Client portal (login.html, portal.html). The studio admin reuses most of it.
+   ========================================================================== */
+.cp h3 { font-size: clamp(30px, 4.2vw, 56px); margin: 0 0 14px; line-height: .98; }
+.cp h4 { font-family: "Bricolage Grotesque", Inter, sans-serif; font-size: 26px; line-height: 1.05; margin: 0 0 10px; letter-spacing: -.03em; }
+.cp .lab { align-items: center; flex-wrap: wrap; }
+.cp-sp { flex: 1; }
+.cp-lead { max-width: 62ch; font-size: 18px; margin: 0 0 8px; }
+.cp-login { max-width: 560px; }
+.cp-login .lead { font-size: 18px; margin-bottom: 8px; }
+
+.cp-grid { display: grid; grid-template-columns: 200px 1fr; gap: clamp(24px, 5vw, 80px); margin-top: 48px; align-items: start; }
+.cp-rail { list-style: none; margin: 0; padding: 0; position: sticky; top: 100px; font-size: 15px; }
+.cp-rail .rt { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .6; padding: 0 0 12px; }
+.cp-rail li.s { padding: 8px 0; opacity: .5; }
+.cp-rail li.s::before { content: "○ "; }
+.cp-rail li.done { opacity: 1; }
+.cp-rail li.done::before { content: "✓ "; }
+.cp-rail li.on { opacity: 1; font-weight: 700; }
+.cp-rail li.on::before { content: "● "; }
+.cp-main { min-width: 0; padding-bottom: 100px; }
+
+.cp-h { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid var(--r); padding: 0 0 12px; margin: 56px 0 24px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.cp-tk { background: var(--sf); margin: 26px 0 0; }
+.cp-tk .l { display: flex; justify-content: space-between; gap: 20px; padding: 13px 20px; border-bottom: 1px solid var(--r); font-size: 15px; }
+.cp-tk .l:last-child { border-bottom: 0; }
+.cp-tk .l > span:first-child { opacity: .65; flex: none; }
+.cp-tk .l > span:last-child { text-align: right; }
+.cp-tk .l.t { font-weight: 700; }
+.cp-tk .l.t > span:first-child { opacity: 1; }
+.cp-tk .big { font-family: "Bricolage Grotesque"; font-size: 28px; letter-spacing: -.04em; }
+.cp-flag { background: #000; color: #fff; padding: 14px 20px; margin: 0 0 28px; font-size: 15px; }
+.cp-demo { border: 1px dashed #000; padding: 10px 14px; font-size: 13px; margin: 0 0 24px; }
+
+/* tabs */
+.cp-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 14px; }
+.cp-tab { background: var(--sf); border: 0; padding: 11px 18px; cursor: pointer; font-size: 15px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+.cp-tab:hover { background: var(--sf2); }
+.cp-tab[aria-pressed=true], .cp-tab[aria-current] { background: #000; color: #fff; }
+.cp-badge { display: inline-block; background: #fff; color: #000; font-size: 10px; letter-spacing: .08em; padding: 2px 6px; text-transform: uppercase; line-height: 1.4; }
+.cp-tab:not([aria-pressed=true]) .cp-badge { background: #000; color: #fff; }
+.cp-badge.dot { background: #d93025 !important; color: #fff !important; border-radius: 10px; min-width: 18px; text-align: center; }
+.cp-maintabs { margin-top: 36px; border-bottom: 1px solid var(--r); padding-bottom: 14px; }
+
+/* concept board (demo visuals) */
+.cp-dl { font-size: 14px; opacity: .75; margin: 0 0 16px; }
+.cp-board { --ink: #000; --ac: #888; --lt: #eee; --pp: #fff; --ff: Inter; --fw: 600; display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; padding: 20px; background: var(--pp); color: var(--ink); border: 1px solid var(--r); font-family: var(--ff), Inter, sans-serif; }
+.cp-b1 { background: var(--lt); min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 30px; text-align: center; }
+.cp-mkw { transition: transform .3s; display: inline-block; }
+.cp-mk { width: 84px; height: 84px; background: var(--ink); color: var(--pp); display: grid; place-items: center; font-family: var(--ff), Inter, sans-serif; font-weight: var(--fw); font-size: 44px; line-height: 1; position: relative; flex: none; }
+.cp-mk::after { content: ""; position: absolute; right: -6px; top: -6px; width: 20px; height: 20px; border-radius: 50%; background: var(--ac); }
+.cp-mk.sm { width: 38px; height: 38px; font-size: 20px; }
+.cp-mk.sm::after { width: 10px; height: 10px; right: -3px; top: -3px; }
+.cp-wm { font-family: var(--ff), Inter, sans-serif; font-weight: var(--fw); font-size: clamp(24px, 3vw, 38px); letter-spacing: -.01em; line-height: 1.05; overflow-wrap: anywhere; }
+.cp-wm.sm { font-size: 18px; }
+.cp-b2 { display: flex; flex-direction: column; gap: 16px; }
+.cp-b2 > div { background: var(--lt); padding: 18px 20px; flex: 1; }
+.cp-board em { display: block; font-style: normal; font-family: Inter, sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .6; margin-bottom: 12px; }
+.cp-sw { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.cp-sw i { display: block; aspect-ratio: 1; border: 1px solid rgba(0, 0, 0, .12); }
+.cp-sw span { display: block; font: 11px/1.2 Inter, sans-serif; margin-top: 6px; opacity: .7; }
+.cp-ty b { font-family: var(--ff), Inter, sans-serif; font-weight: var(--fw); font-size: 60px; line-height: 1; display: block; margin-bottom: 6px; }
+.cp-ty span { font: 13px Inter, sans-serif; opacity: .7; }
+.cp-b3 { grid-column: 1/-1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cp-b3 > div { padding: 22px; min-height: 160px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; }
+.cp-card { background: var(--ink); color: var(--pp); }
+.cp-card .cp-mk { background: var(--pp); color: var(--ink); }
+.cp-card small { font: 13px Inter, sans-serif; opacity: .75; }
+.cp-sign { background: var(--ac); color: var(--ink); }
+.cp-row { display: flex; align-items: center; gap: 14px; }
+
+/* uploaded visuals */
+.cp-gal { display: grid; gap: 12px; }
+.cp-gal img { display: block; width: 100%; height: auto; background: var(--sf); border: 1px solid var(--r); }
+.cp-gal .doc { display: flex; justify-content: space-between; align-items: center; gap: 16px; background: var(--sf); padding: 16px 20px; }
+
+.cp-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
+.cp-3 > div { background: var(--sf); padding: 18px 20px; }
+.cp-3 b { display: block; font-size: 13px; margin-bottom: 6px; }
+.cp-3 p { margin: 0; font-size: 15px; }
+.cp-1 { grid-template-columns: 1fr; }
+
+/* forms + panels */
+.cp-panel { background: var(--sf); padding: 26px 28px; margin: 0 0 22px; }
+.cp-panel p { margin: 0 0 6px; max-width: 64ch; }
+.cp-panel input[type=text], .cp-panel input[type=number], .cp-panel input[type=url], .cp-panel input[type=date], .cp-panel textarea, .cp-panel select, .cp-panel .chip:not([aria-pressed=true]) { background: #fff; }
+.cp-rb { display: inline-block; background: #000; color: #fff; font-size: 12px; letter-spacing: .08em; padding: 4px 10px; margin-bottom: 14px; }
+.cp-warn { font-size: 14px; opacity: .8; margin: 18px 0 0; }
+.cp-hs { border-top: 1px solid #000; padding: 18px 0; }
+.cp-hs:last-child { border-bottom: 1px solid var(--r); }
+.cp-hs .hh { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 14px; margin-bottom: 8px; }
+.cp-hs .hh b { font-size: 16px; }
+.cp-hs .ar { font-size: 13px; opacity: .7; margin-bottom: 6px; }
+.cp-hs q { display: block; quotes: none; max-width: 70ch; white-space: pre-wrap; }
+.cp-rules { margin: 10px 0 0; padding-left: 20px; font-size: 15px; line-height: 1.75; }
+.cp-files .f { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--r); }
+.cp-files .f small { opacity: .65; display: block; font-size: 13px; }
+.cp-files .f a { white-space: nowrap; }
+.cp-files .f .nm { min-width: 0; overflow-wrap: anywhere; }
+
+/* messages */
+.th { display: flex; flex-direction: column; gap: 14px; max-height: min(62vh, 640px); overflow-y: auto; padding: 18px; background: var(--sf); scroll-behavior: smooth; }
+.th-m { max-width: min(78%, 620px); display: flex; flex-direction: column; gap: 4px; }
+.th-m .b { padding: 12px 16px; background: #fff; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15px; line-height: 1.5; }
+.th-m .who { font-size: 12px; opacity: .6; }
+.th-m.me { align-self: flex-end; align-items: flex-end; }
+.th-m.me .b { background: #000; color: #fff; }
+.th-m .att { display: flex; flex-wrap: wrap; gap: 6px; }
+.th-m .att a { font-size: 13px; background: #fff; padding: 6px 10px; text-decoration: none; border: 1px solid var(--r); }
+.th-m .att img { max-width: 220px; max-height: 160px; display: block; }
+.th-sys { align-self: center; font-size: 12px; opacity: .65; text-align: center; padding: 2px 10px; }
+.th-sys::before, .th-sys::after { content: " — "; }
+.th-empty { text-align: center; opacity: .6; padding: 30px 0; font-size: 15px; }
+.cmp { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 10px; align-items: end; }
+.cmp textarea { min-height: 54px; max-height: 240px; }
+.cmp-bar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 8px; font-size: 13px; }
+.cmp-bar .pend { opacity: .7; }
+.file-btn { position: relative; overflow: hidden; display: inline-block; cursor: pointer; text-decoration: underline; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.msg-peek { display: flex; gap: 14px; align-items: center; justify-content: space-between; background: var(--warm1); padding: 16px 20px; margin-top: 26px; cursor: pointer; border: 0; width: 100%; text-align: left; font-size: 15px; }
+
+/* brief */
+.brief dl { margin: 0; }
+.brief .row2 { display: grid; grid-template-columns: minmax(140px, 260px) 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--r); font-size: 15px; }
+.brief dt { opacity: .65; }
+.brief dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+@media (max-width: 900px) {
+  .cp-grid { grid-template-columns: 1fr; }
+  .cp-rail { position: static; display: flex; overflow-x: auto; gap: 18px; border-bottom: 1px solid var(--r); padding-bottom: 6px; }
+  .cp-rail .rt { display: none; }
+  .cp-rail li.s { white-space: nowrap; }
+  .cp-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .cp-board, .cp-b3 { grid-template-columns: 1fr; }
+  .th-m { max-width: 90%; }
+  .brief .row2 { grid-template-columns: 1fr; gap: 2px; }
+  .cmp { grid-template-columns: 1fr; }
+}

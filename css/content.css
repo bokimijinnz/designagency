@@ -1,0 +1,82 @@
+/* ==========================================================================
+   Work (projects) and Journal (blog): cards, list pages and article pages.
+   ========================================================================== */
+.filters { margin-top: 40px; }
+
+/* ---------- work cards ---------- */
+.wgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 16px; margin-top: 44px; }
+.wcard { text-decoration: none; display: flex; flex-direction: column; gap: 10px; }
+.wcard p { margin: 0; font-size: 15px; opacity: .8; }
+.wmeta { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; }
+.wmeta b { font: 700 22px/1.1 "Bricolage Grotesque"; letter-spacing: -.03em; }
+.wtags { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; opacity: .7; }
+.wcard:hover .wc { transform: scale(.985); }
+
+/* generated brand-board cover */
+.wc { --ink: #111; --ac: #888; --lt: #eee; --pp: #fff; --ff: Inter; --fw: 600;
+  position: relative; aspect-ratio: 4/3; background: var(--lt); color: var(--ink); overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; text-align: center; transition: transform .3s; }
+.wc.big { aspect-ratio: 16/8; gap: 28px; }
+.wc.img { padding: 0; background: var(--sf); }
+.wc.img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wc-mk { width: 72px; height: 72px; background: var(--ink); color: var(--pp); display: grid; place-items: center; font-family: var(--ff), Inter, sans-serif; font-weight: var(--fw); font-size: 38px; line-height: 1; position: relative; }
+.wc-mk::after { content: ""; position: absolute; right: -6px; top: -6px; width: 18px; height: 18px; border-radius: 50%; background: var(--ac); }
+.wc.big .wc-mk { width: 110px; height: 110px; font-size: 58px; }
+.wc-wm { font-family: var(--ff), Inter, sans-serif; font-weight: var(--fw); font-size: clamp(20px, 2.2vw, 30px); letter-spacing: -.01em; line-height: 1.05; }
+.wc.big .wc-wm { font-size: clamp(28px, 4vw, 54px); }
+.wc-sw { position: absolute; left: 16px; bottom: 16px; display: flex; gap: 4px; }
+.wc-sw i { width: 14px; height: 14px; border: 1px solid rgba(0, 0, 0, .1); }
+
+/* ---------- journal cards ---------- */
+.pgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 16px; margin-top: 44px; }
+.pcard { text-decoration: none; display: flex; flex-direction: column; gap: 10px; }
+.pcard h3 { font-size: clamp(24px, 2.4vw, 32px); line-height: 1.02; }
+.pcard p { margin: 0; font-size: 15px; opacity: .8; }
+.pcard .more { font-size: 14px; text-decoration: underline; margin-top: 2px; }
+.pc { aspect-ratio: 16/10; display: grid; place-items: center; overflow: hidden; }
+.pc img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pc-o { width: 34%; aspect-ratio: 1; background: center/contain no-repeat; transition: transform .4s; }
+.pcard:hover .pc-o { transform: rotate(-6deg) scale(1.06); }
+.pmeta { display: flex; gap: 14px; font-size: 13px; opacity: .65; margin-top: 6px; }
+
+/* ---------- article pages ---------- */
+.art-h { display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; align-items: end; }
+.facts { margin: 0; display: grid; gap: 12px; font-size: 15px; }
+.facts div { display: grid; grid-template-columns: 100px 1fr; gap: 10px; border-top: 1px solid var(--r); padding-top: 10px; }
+.facts dt { opacity: .6; }
+.facts dd { margin: 0; }
+.art-cover { margin-top: 44px; }
+.post-h { max-width: 900px; }
+.post-h h2 { margin-top: 14px; max-width: 14em; font-size: clamp(38px, 6vw, 84px); }
+
+.prose { max-width: 70ch; margin-top: 56px; font-size: 18px; line-height: 1.7; }
+.prose.narrow { max-width: 66ch; }
+.prose h2 { font-size: clamp(28px, 3vw, 40px); margin: 56px 0 14px; letter-spacing: -.03em; line-height: 1.05; max-width: none; }
+.prose h3 { font-size: 24px; margin: 36px 0 10px; letter-spacing: -.02em; }
+.prose p { margin: 0 0 18px; }
+.prose ul, .prose ol { margin: 0 0 18px; padding-left: 22px; }
+.prose li { margin: 6px 0; }
+.prose blockquote { margin: 28px 0; padding: 20px 24px; background: var(--warm1); font-size: 20px; font-style: italic; }
+.prose figure { margin: 28px 0; }
+.prose img { display: block; width: 100%; height: auto; }
+.prose a { text-underline-offset: 3px; }
+
+.art-next { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--r); }
+.post-cta { display: flex; gap: 24px; align-items: center; background: var(--warm3); padding: 28px; margin-top: 64px; max-width: 760px; }
+.post-cta .oc { width: 96px; flex: none; }
+.post-cta p { margin: 4px 0 16px; }
+.post-cta b { font: 700 24px "Bricolage Grotesque"; letter-spacing: -.03em; }
+
+@media (max-width: 1000px) {
+  .wgrid, .pgrid { grid-template-columns: 1fr 1fr; }
+  .art-h { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .wgrid, .pgrid { grid-template-columns: 1fr; }
+  .wc.big { aspect-ratio: 4/3; }
+  .post-cta { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 640px) {
+  .filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }
+  .filters .chip { white-space: nowrap; }
+}

@@ -1,0 +1,5 @@
+# Server data: client projects, messages, uploads, sessions. Never commit.
+server/data/
+node_modules/
+.DS_Store
+.env

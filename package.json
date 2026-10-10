@@ -1,0 +1,11 @@
+{
+  "name": "whetu-studio-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Design studio website with online estimates, quotes and a client portal.",
+  "scripts": {
+    "start": "node server/server.js",
+    "check": "node --check js/workflow.js && node --check js/api.js && node --check server/server.js"
+  },
+  "engines": { "node": ">=18" }
+}
