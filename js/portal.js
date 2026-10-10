@@ -8,7 +8,7 @@
   const ui = { id: qs('p') || '', tab: qs('tab') || 'over', view: null, dirTab: null, confirm: '', flash: '', msg: '', note: '', decl: '', draft: { areas: [], t1: '', t2: '' }, pendingFiles: [] };
   let list = [], req = null, isLocal = false, busy = false;
 
-  const sess = await API.session(ROLE);
+  const sess = (await API.session(ROLE)) || ((await API.demoSignIn(ROLE)) && (await API.session(ROLE)));
   if (!sess) { location.replace('login.html'); return; }
   isLocal = (await API.mode()) === 'local';
 

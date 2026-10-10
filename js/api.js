@@ -130,6 +130,39 @@
       return { ok: true, email };
     },
 
+    // Demo mode: make sure there is a sample project to look at, then sign in.
+    async demoSignIn(role) {
+      if (await mode() !== 'local' || !CFG.demoAutoLogin) return false;
+      role = role2(role);
+      const d = db();
+      let list = Object.values(d.requests).sort((a, b) => b.updatedAt - a.updatedAt);
+      if (!list.length) {
+        const now = Date.now() - 3 * 864e5;
+        let r = W.createRequest({
+          client: { name: 'Jane Smith', email: 'jane@kiwicoffee.co.nz', role: 'Owner' },
+          biz: 'Kiwi Coffee Roasters', lang: 'en', services: ['brand', 'web'],
+          answers: { biz: 'Kiwi Coffee Roasters', ind: 'Hospitality', what: 'We roast and sell specialty coffee to cafés and online.', region: 'Auckland', why: 'Look more professional so we can win bigger clients.', problem: 'Our logo looks dated and customers don\'t remember us.', b_feel: ['Warm', 'Local', 'Trustworthy'], pages: '5', deadline: 'A planned month', date: 'End of November', budget: '$2,500 to $5,000', name: 'Jane Smith', email: 'jane@kiwicoffee.co.nz' },
+          estimate: { lines: [['BRAND-01 Brand Starter', 1090], ['WEB-05 Website, up to 5 pages', 1690], ['Launch bundle adjustment (LAUNCH-01 $2,290)', -490]], manual: [], sub: 2290, gst: 343.5, tot: 2633.5, weeks: [6, 9] }
+        }, { now, taken: id => !!d.requests[id] });
+        r = W.apply(r, 'client', 'message', { text: 'Hi! Could the website be ready before our shop opens at the end of November?' }, now + 36e5);
+        r = W.apply(r, 'studio', 'start_review', {}, now + 864e5);
+        r = W.apply(r, 'studio', 'message', { text: 'Hi Jane, yes, end of November works if we start next week. Your quote is below.' }, now + 864e5 + 6e5);
+        r = W.apply(r, 'studio', 'publish_quote', {
+          lines: [{ label: 'BRAND-01 Brand Starter', amount: 1090 }, { label: 'WEB-05 Website, up to 5 pages', amount: 1690 }, { label: 'Launch bundle adjustment', amount: -490 }],
+          weeks: '6–9 weeks from design start', validDays: 14,
+          includes: 'Two logo directions with rationale\nColour and type, mini brand guide\nBusiness card\n5-page website design and basic build',
+          excludes: 'Domain, hosting and paid tools\nPrinting', notes: 'Sample project for the demo. Try accepting the quote, then switch to the designer portal.'
+        }, now + 864e5 + 9e5);
+        r.read.client = now + 864e5;
+        d.requests[r.id] = r;
+        saveDb(d);
+        list = [r];
+      }
+      if (role === 'studio') ls.set(SES + role, { at: Date.now() });
+      else ls.set(SES + role, { email: list[0].client.email, at: Date.now() });
+      return true;
+    },
+
     async session(role) {
       role = role2(role);
       if (await mode() === 'server') {

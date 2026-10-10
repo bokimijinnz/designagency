@@ -8,7 +8,7 @@
  */
 Object.assign(I18N, {
   'Work': ['작업', '作品'], 'Journal': ['저널', '日志'], 'How It Works': ['진행 방식', '如何运作'],
-  'Client login': ['고객 로그인', '客户登录'], 'Open my client portal ↗': ['고객 포털 열기 ↗', '打开客户门户 ↗'],
+  'Client login': ['고객 로그인', '客户登录'], 'Designer portal': ['디자이너 포털', '设计师门户'], 'Studio': ['스튜디오', '工作室'], 'Open my client portal ↗': ['고객 포털 열기 ↗', '打开客户门户 ↗'],
   'Get an estimate': ['견적 받기', '获取估价'],
   'Support email for sign-in, accessibility and legal matters only.': ['로그인, 접근성, 법률 관련 문의 전용 이메일입니다.', '仅用于登录、无障碍和法律事务的支持邮箱。'],
   'One private portal': ['하나의 비공개 포털', '一个专属门户'],
@@ -53,7 +53,7 @@ const AT = {
     ms: 'My Studio', out: 'Log out', ms_title: 'MY STUDIO.', r_t: 'Your project', projects: 'Your projects',
     k_id: 'Project ID', k_svc: 'Services', k_st: 'Status', k_nx: 'Next step', k_rr: 'Revision rounds',
     tab_over: 'Project', tab_msg: 'Messages', tab_files: 'Files', tab_brief: 'Brief',
-    demo: 'Demo mode: everything is saved in this browser. Open admin.html in another tab to play the studio side.',
+    demo: 'Demo mode: everything is saved in this browser. Switch sides with “Client login” and “Designer portal” in the menu.',
     // next steps
     nx_new: 'Your designer will review your request, usually within two NZ business days.',
     nx_reviewing: 'Your designer is checking scope and pricing. Questions appear in Messages.',
@@ -152,7 +152,7 @@ const AT = {
     ms: 'My Studio', out: '로그아웃', ms_title: 'MY STUDIO.', r_t: '내 프로젝트', projects: '내 프로젝트 목록',
     k_id: '프로젝트 번호', k_svc: '서비스', k_st: '상태', k_nx: '다음 단계', k_rr: '수정 횟수',
     tab_over: '프로젝트', tab_msg: '메시지', tab_files: '파일', tab_brief: '브리프',
-    demo: '데모 모드: 모든 내용이 이 브라우저에 저장돼요. 다른 탭에서 admin.html을 열면 스튜디오 쪽을 체험할 수 있어요.',
+    demo: '데모 모드: 모든 내용이 이 브라우저에 저장돼요. 메뉴의 “고객 로그인”과 “디자이너 포털”로 양쪽 화면을 오갈 수 있어요.',
     nx_new: '디자이너가 요청을 검토해요. 보통 뉴질랜드 영업일 기준 2일 이내예요.',
     nx_reviewing: '디자이너가 범위와 가격을 확인 중이에요. 질문은 메시지에 표시돼요.',
     nx_quoted: '견적을 확인하고 수락, 질문, 거절 중에 선택해 주세요.',
@@ -242,7 +242,7 @@ const AT = {
     ms: 'My Studio', out: '退出登录', ms_title: 'MY STUDIO.', r_t: '我的项目', projects: '我的项目列表',
     k_id: '项目编号', k_svc: '服务', k_st: '状态', k_nx: '下一步', k_rr: '修改次数',
     tab_over: '项目', tab_msg: '消息', tab_files: '文件', tab_brief: '需求',
-    demo: '演示模式：所有内容保存在此浏览器中。在另一个标签页打开 admin.html 即可体验工作室一侧。',
+    demo: '演示模式：所有内容保存在此浏览器中。可通过菜单中的“客户登录”和“设计师门户”切换两侧界面。',
     nx_new: '设计师会审核您的请求，通常在 2 个新西兰工作日内。',
     nx_reviewing: '设计师正在核对范围和价格。问题会显示在消息中。',
     nx_quoted: '请查看报价，然后接受、提问或拒绝。',

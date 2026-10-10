@@ -17,6 +17,10 @@ window.STUDIO_CONFIG = {
   // Demo mode only (no server). On the server, set the ADMIN_PASSWORD env var instead.
   demoAdminPassword: 'studio',
 
+  // Demo mode only: sign in automatically (client and designer) so every screen
+  // can be looked at without codes or passwords. Has no effect in server mode.
+  demoAutoLogin: true,
+
   // How often open portals check for new messages in server mode.
   pollMs: 8000
 };

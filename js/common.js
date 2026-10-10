@@ -44,6 +44,7 @@ const Site = {
         <a href="index.html#how">How It Works</a>
         <a href="index.html#pricing">Pricing</a>
         <a href="login.html"${on('login') || on('portal')}>Client login</a>
+        ${cfg.demoAutoLogin ? `<a href="admin.html"${on('admin')}>Designer portal</a>` : ''}
         <a class="btn sm" href="estimate.html">Get an Estimate ↗</a>
       </nav>
       <div class="hr">
@@ -67,7 +68,7 @@ const Site = {
     const cfg = window.STUDIO_CONFIG || {};
     ft.innerHTML = `<div class="w">
       <span><b>${esc(cfg.name || 'WHETŪ STUDIO')}</b><br>${esc(cfg.tagline || '')}</span>
-      <span class="fl"><a href="work.html">Work</a> · <a href="journal.html">Journal</a> · <a href="index.html#pricing">Pricing</a> · <a href="estimate.html">Get an estimate</a> · <a href="login.html">Client login</a></span>
+      <span class="fl"><a href="work.html">Work</a> · <a href="journal.html">Journal</a> · <a href="index.html#pricing">Pricing</a> · <a href="estimate.html">Get an estimate</a> · <a href="login.html">Client login</a> · <a href="admin.html">Studio</a></span>
       <span>Support email for sign-in, accessibility and legal matters only.<br><a href="mailto:${esc(cfg.contactEmail || '')}">${esc(cfg.contactEmail || '')}</a></span>
     </div>`;
   },

@@ -268,7 +268,7 @@
     if (ui.area === 'reqs') body = `<div class="ad-grid">${listView()}${detailView(cur())}</div>`;
     else body = await contentView(ui.area);
     el.innerHTML = `<div class="lab"><span><b>${T('a_title')}</b></span><span class="cp-sp"></span><a href="index.html" target="_blank">${T('a_view_site')}</a><button class="link" data-act="logout">${T('out')}</button></div>
-      ${isLocal ? `<p class="cp-demo">${T('demo').replace('admin.html', 'portal.html')}</p>` : ''}
+      ${isLocal ? `<p class="cp-demo">${T('demo')}</p>` : ''}
       <div class="cp-tabs ad-areas">${areas.map(a => `<button class="cp-tab" data-act="area" data-x="${a[0]}" aria-pressed="${ui.area === a[0]}">${a[1]}${a[0] === 'reqs' && todo ? ` <span class="cp-badge dot">${todo}</span>` : ''}</button>`).join('')}</div>${body}`;
     apply(el);
     if (ui.area === 'reqs' && ui.tab === 'msg' && cur()) { const th = $('#th'); if (th) th.scrollTop = th.scrollHeight; markRead(); }
@@ -411,6 +411,8 @@
   async function start() {
     if (!(await loadReqs())) return;
     if (!ui.id && reqs.length) { const first = reqs.find(needsAction) || reqs[0]; ui.id = first.id; }
+    // Start on 'Needs action' only when something needs action.
+    if (ui.filter === 'todo' && !reqs.some(needsAction)) ui.filter = reqs.some(FILTERS.open) ? 'open' : 'all';
     setUrl();
     await render();
     if (!unsub) unsub = API.subscribe(async () => {
@@ -425,5 +427,5 @@
   }
 
   Site.onLang(() => { if (ui.area) rerender(); });
-  if (await API.session(ROLE)) start(); else loginView();
+  if ((await API.session(ROLE)) || (await API.demoSignIn(ROLE))) start(); else loginView();
 })();

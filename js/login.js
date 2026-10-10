@@ -1,6 +1,8 @@
 /* Client sign-in: email + access code → portal.html */
 (async function () {
   if (await API.session('client')) { location.replace('portal.html'); return; }
+  // Demo mode: skip the form and open the portal straight away.
+  if (!qs('code') && await API.demoSignIn('client')) { location.replace('portal.html'); return; }
   if (await API.mode() === 'local') $('#demo').hidden = false;
   const em = $('#em'), cd = $('#cd'), er = $('#er');
   em.value = qs('email') || '';
