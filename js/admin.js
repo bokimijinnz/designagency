@@ -218,7 +218,7 @@
         <div class="thumb">${type === 'posts' ? postCover(x) : workCover(x)}</div>
         <div><b data-no-tr>${esc(x.title)}</b><p class="note" data-no-tr>${esc(type === 'posts' ? x.date + ' · ' + (x.tags || []).join(', ') : (x.year || '') + ' · ' + (x.services || []).join(', '))}</p>
           <p>${x.published === false ? `<span class="pill">${T('a_draft')}</span> ` : ''}${x.sample ? '<span class="pill">Sample</span> ' : ''}${x.featured ? `<span class="pill dark">★</span>` : ''}</p></div>
-        <div class="acts" style="margin:0"><a class="link" href="${type === 'posts' ? 'post' : 'project'}.html?slug=${encodeURIComponent(x.slug)}" target="_blank">↗</a><button class="btn alt sm" data-act="cedit" data-s="${esc(x.slug)}">${T('a_edit')}</button><button class="link" data-act="cdel" data-s="${esc(x.slug)}">${T('a_del')}</button></div>
+        <div class="acts" style="margin:0"><a class="link" href="${type === 'posts' ? 'post' : 'project'}.html?slug=${encodeURIComponent(x.slug)}" target="_blank">↗</a><button class="btn alt sm" data-act="cedit" data-s="${esc(x.slug)}">${T('a_edit')}</button>${ui.sure === 'del:' + x.slug ? `<button class="btn sm" data-act="cdel" data-s="${esc(x.slug)}">${T('a_del')} ✓</button><button class="link" data-act="unsure">${T('no')}</button>` : `<button class="link" data-act="sure" data-a="del:${esc(x.slug)}">${T('a_del')}</button>`}</div>
       </div>`).join('') || `<p class="note">—</p>`}</div>`;
   }
 
@@ -295,7 +295,7 @@
     if (!b) return;
     const a = b.dataset.act, r = cur();
     if (a === 'logout') { await API.logout(ROLE); return loginView(); }
-    if (a === 'area') { ui.area = b.dataset.x; ui.edit = null; setUrl(); return rerender(); }
+    if (a === 'area') { ui.area = b.dataset.x; ui.edit = null; ui.sure = ''; setUrl(); return rerender(); }
     if (a === 'filter') { ui.filter = b.dataset.f; return rerender(); }
     if (a === 'open') { ui.id = b.dataset.id; ui.tab = 'next'; ui.sure = ''; setUrl(); await rerender(); if (innerWidth < 1000) $('.ad-detail').scrollIntoView({ behavior: 'smooth' }); return; }
     if (a === 'tab') { ui.tab = b.dataset.t; ui.sure = ''; return rerender(); }
@@ -334,7 +334,7 @@
     // content
     if (a === 'cnew') { ui.edit = blank(ui.area); ui.editSlug = ''; ui.preview = false; return rerender(); }
     if (a === 'cedit') { const items = await API.content.list(ui.area, { all: true }); ui.edit = JSON.parse(JSON.stringify(items.find(x => x.slug === b.dataset.s))); ui.editSlug = ui.edit.slug; ui.preview = false; return rerender(); }
-    if (a === 'cdel') { if (confirm(T('a_del_q'))) { try { await API.content.remove(ui.area, b.dataset.s); rerender(); } catch (x) { Site.toast(x.message); } } return; }
+    if (a === 'cdel') { ui.sure = ''; try { await API.content.remove(ui.area, b.dataset.s); rerender(); } catch (x) { Site.toast(x.message); } return; }
     if (a === 'ccancel') { ui.edit = null; return rerender(); }
     if (a === 'cprev') { ui.preview = !ui.preview; return rerender(); }
     if (a === 'cimgdel') { delete ui.edit.cover.image; return rerender(); }
