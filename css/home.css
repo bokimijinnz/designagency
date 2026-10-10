@@ -79,3 +79,55 @@ html[lang=ko] .hero h1.tag, html[lang=zh-Hans] .hero h1.tag { line-height: 1.25;
   .w4 { grid-template-columns: 1fr; }
   #how h2, #why h2, #pricing h2 { max-width: 12em; }
 }
+
+/* ---------- pricing as an invoice ---------- */
+.inv { position: relative; max-width: 960px; margin: 48px auto 0; background: #fff; padding: clamp(22px, 4vw, 52px); box-shadow: 0 1px 0 rgba(0,0,0,.06), 0 24px 60px -24px rgba(0,0,0,.28); font-variant-numeric: tabular-nums; }
+.inv::before, .inv::after { content: ""; position: absolute; left: 0; right: 0; height: 10px; background: radial-gradient(circle at 5px 0, transparent 5px, #fff 5.5px) 0 0/10px 10px repeat-x; }
+.inv::before { top: -9px; transform: rotate(180deg); }
+.inv::after { bottom: -9px; }
+#pricing { background: var(--warm1); }
+.inv-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; padding-bottom: 22px; border-bottom: 2px solid #000; }
+.inv-from { display: flex; gap: 12px; align-items: center; }
+.inv-from b { display: block; font-family: "Bricolage Grotesque"; letter-spacing: .02em; }
+.inv-from span:not(.gh) { font-size: 13px; opacity: .65; }
+.inv-logo { width: 42px; height: 43px; }
+.inv-title { text-align: right; }
+.inv-title h3 { font-size: clamp(30px, 4.5vw, 54px); letter-spacing: -.04em; line-height: .9; }
+.inv-title span { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .6; }
+.inv-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 22px 0 8px; }
+.inv-meta dt { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; }
+.inv-meta dd { margin: 4px 0 0; font-size: 14px; font-weight: 500; }
+.inv-scroll { overflow-x: auto; }
+.inv-t { margin-top: 18px; min-width: 560px; }
+.inv-t th { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; opacity: .6; border-top: 0; border-bottom: 1px solid #000; padding: 10px 12px 10px 0; }
+.inv-t td { padding: 16px 12px 16px 0; border-top: 0; border-bottom: 1px dashed rgba(0,0,0,.22); }
+.inv-t td b { display: block; font-size: 17px; }
+.inv-t td span { display: block; font-size: 14px; opacity: .7; max-width: 52ch; margin-top: 2px; }
+.inv-t .c { font: 12px/1.6 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .04em; white-space: nowrap; opacity: .75; width: 96px; }
+.inv-t .n { text-align: right; white-space: nowrap; font-weight: 600; width: 90px; }
+.inv-t td:nth-child(3), .inv-t th:nth-child(3) { text-align: center; }
+.inv-t .n small { display: block; font-size: 11px; font-weight: 500; color: var(--ok); }
+.inv-t tr.hl td { background: var(--warm3); }
+.inv-t tr.hl td:first-child { padding-left: 10px; }
+.inv-foot { display: grid; grid-template-columns: 1fr minmax(260px, 340px); gap: 32px; margin-top: 28px; align-items: start; }
+.inv-notes { font-size: 14px; }
+.inv-notes p { margin: 4px 0 0; opacity: .7; max-width: 44ch; }
+.inv-sum p { display: flex; justify-content: space-between; gap: 16px; margin: 0; padding: 7px 0; font-size: 14px; }
+.inv-sum .tot { border-top: 2px solid #000; border-bottom: 2px solid #000; margin: 6px 0; padding: 10px 0; font: 700 22px "Bricolage Grotesque"; letter-spacing: -.02em; }
+.inv-stamp { display: inline-block; margin: 26px 0 0 8px; transform: rotate(-9deg); border: 3px solid #b23a2a; color: #b23a2a; padding: 6px 14px 4px; text-align: center; opacity: .82; mix-blend-mode: multiply; pointer-events: none; }
+.inv-stamp span { display: block; font: 800 22px/1 "Archivo Black", Inter, sans-serif; letter-spacing: .08em; }
+.inv-stamp small { display: block; font-size: 10px; letter-spacing: .25em; font-weight: 700; }
+.inv-cta { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--r); }
+.inv-cta .note { margin: 0; }
+@media (max-width: 760px) {
+  .inv-meta { grid-template-columns: 1fr 1fr; }
+  .inv-foot { grid-template-columns: 1fr; }
+  .inv-title { text-align: left; }
+}
+.inv + .note { max-width: 960px; margin-inline: auto; }
+@media (max-width: 640px) {
+  .inv-t { min-width: 0; }
+  .inv-t th:nth-child(1), .inv-t td:nth-child(1), .inv-t th:nth-child(3), .inv-t td:nth-child(3) { display: none; }
+  .inv-t tr.hl td:nth-child(2) { padding-left: 10px; }
+  .inv-t td span { font-size: 13px; }
+}

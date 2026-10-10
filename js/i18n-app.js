@@ -27,6 +27,15 @@ Object.assign(I18N, {
   'Have a project in mind?': ['생각 중인 프로젝트가 있나요?', '有项目想法吗？'], 'See your price and timeline in minutes.': ['몇 분 만에 가격과 일정을 확인하세요.', '几分钟内查看价格和时间。'],
   'More from the journal': ['저널 더 보기', '更多日志'],
   'This project could not be found.': ['프로젝트를 찾을 수 없어요.', '找不到该项目。'], 'This post could not be found.': ['글을 찾을 수 없어요.', '找不到该文章。'],
+  // pricing invoice
+  'PRICE LIST': ['가격표', '价目表'], 'Starting prices · NZD': ['시작 가격 · NZD', '起步价格 · NZD'],
+  'Invoice no.': ['인보이스 번호', '发票编号'], 'Bill to': ['청구 대상', '收件方'], 'Issued': ['발행일', '开具日期'], 'Terms': ['조건', '条款'],
+  'Your business': ['고객님의 비즈니스', '您的企业'], '50% deposit · 50% before final files': ['계약금 50% · 최종 파일 전 50%', '50% 定金 · 交付前 50%'],
+  'Code': ['코드', '编号'], 'Item': ['항목', '项目'], 'Rounds': ['수정', '修改'], 'From': ['시작가', '起价'], 'save $490': ['$490 할인', '节省 $490'],
+  'Notes': ['참고', '备注'], 'Prices exclude GST (15%). Extra revision rounds are $150 each. Domain, hosting and paid tools are separate.': ['가격은 GST(15%) 별도예요. 추가 수정은 회당 $150이에요. 도메인, 호스팅, 유료 도구는 별도예요.', '价格不含 GST（15%）。额外修改每轮 $150。域名、主机和付费工具另计。'],
+  'Example: Complete Launch': ['예시: Complete Launch', '示例：Complete Launch'], 'GST (15%)': ['GST (15%)', 'GST (15%)'], 'Total': ['합계', '总计'],
+  'Deposit due on acceptance': ['수락 시 계약금', '接受时应付定金'],
+  'Your own invoice-style quote appears in My Studio, checked by a designer.': ['내 프로젝트의 견적서도 이런 모양으로 My Studio에 올라와요. 디자이너가 직접 확인해요.', '您的专属报价单也会以这种形式出现在 My Studio，并由设计师亲自核对。'],
   // estimate → portal handoff
   'Your My Studio access code': ['My Studio 접속 코드', 'My Studio 访问码'], 'Open My Studio ↗': ['My Studio 열기 ↗', '打开 My Studio ↗'],
   'Sign in with': ['로그인 이메일:', '登录邮箱：'], 'and this code. Keep it somewhere safe.': ['그리고 이 코드로 로그인하세요. 안전한 곳에 보관해 주세요.', '以及此访问码。请妥善保存。'],

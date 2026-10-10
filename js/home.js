@@ -28,3 +28,11 @@
   }
   teasers();
 })();
+
+// Price list "issued" date: today, in the reader's language.
+(function () {
+  const d = $('#inv-date');
+  const draw = () => { if (d) d.textContent = new Date().toLocaleDateString(LOC(), { day: 'numeric', month: 'short', year: 'numeric' }); };
+  draw();
+  Site.onLang(draw);
+})();
