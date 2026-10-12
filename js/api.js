@@ -142,18 +142,19 @@
           client: { name: 'Jane Smith', email: 'jane@kiwicoffee.co.nz', role: 'Owner' },
           biz: 'Kiwi Coffee Roasters', lang: 'en', services: ['brand', 'web'],
           answers: { biz: 'Kiwi Coffee Roasters', ind: 'Hospitality', what: 'We roast and sell specialty coffee to cafés and online.', region: 'Auckland', why: 'Look more professional so we can win bigger clients.', problem: 'Our logo looks dated and customers don\'t remember us.', b_feel: ['Warm', 'Local', 'Trustworthy'], pages: '5', deadline: 'A planned month', date: 'End of November', budget: '$2,500 to $5,000', name: 'Jane Smith', email: 'jane@kiwicoffee.co.nz' },
-          estimate: { lines: [['BRAND-01 Brand Starter', 1090], ['WEB-05 Website, up to 5 pages', 1690], ['LAUNCH-01 Launch bundle saving', -490]], manual: [], sub: 2290, gst: 343.5, tot: 2633.5, weeks: [6, 9] }
+          estimate: { lines: [['BRAND-01 Brand Starter', 1090], ['WEB-05 Website design, up to 5 pages', 1690], ['LAUNCH-01 Launch bundle saving', -490]], manual: [], sub: 2290, gst: 343.5, tot: 2633.5, weeks: [6, 9] }
         }, { now, taken: id => !!d.requests[id] });
         r = W.apply(r, 'client', 'message', { text: 'Hi! Could the website be ready before our shop opens at the end of November?' }, now + 36e5);
         r = W.apply(r, 'studio', 'start_review', {}, now + 864e5);
         r = W.apply(r, 'studio', 'message', { text: 'Hi Jane, yes, end of November works if we start next week. Your quote is below.' }, now + 864e5 + 6e5);
         r = W.apply(r, 'studio', 'publish_quote', {
-          lines: [{ label: 'BRAND-01 Brand Starter', amount: 1090 }, { label: 'WEB-05 Website, up to 5 pages', amount: 1690 }, { label: 'LAUNCH-01 Launch bundle saving', amount: -490 }],
+          lines: [{ label: 'BRAND-01 Brand Starter', amount: 1090 }, { label: 'WEB-05 Website design, up to 5 pages (Figma + PDF)', amount: 1690 }, { label: 'LAUNCH-01 Launch bundle saving', amount: -490 }],
           weeks: '6–9 weeks from design start', validDays: 14,
-          includes: 'Two logo directions with rationale\nColour and type, mini brand guide\nBusiness card\n5-page website design and basic build',
-          excludes: 'Domain, hosting and paid tools\nPrinting', notes: 'Sample project for the demo. Try accepting the quote, then switch to the designer portal.'
+          includes: 'Two logo directions with rationale\nColour and type, mini brand guide\nBusiness card\n5-page website design (Figma + PDF)',
+          excludes: 'Website build and hosting\nPrinting', notes: 'Sample project for the demo. Try accepting the quote, then switch to the designer portal.'
         }, now + 864e5 + 9e5);
         r.read.client = now + 864e5;
+        if (window.SAMPLE_BRIEF) r.ai = { brief: { status: 'ready', demo: true, at: now + 6e4, data: window.SAMPLE_BRIEF } };
         d.requests[r.id] = r;
         saveDb(d);
         list = [r];
@@ -229,6 +230,26 @@
       if (f.url) return f.url;
       const t = ls.get(TOK + role2(role));
       return t ? BASE + '/api/files/' + encodeURIComponent(reqId) + '/' + encodeURIComponent(f.id) + '?t=' + encodeURIComponent(t) : '';
+    },
+
+    /* ---------- AI agents (server only; demo mode shows an example) ---------- */
+    ai: {
+      async status() {
+        if (await mode() !== 'server') return { enabled: false, demo: true };
+        try { return await http('GET', '/api/ai', undefined, 'studio'); } catch (e) { return { enabled: false }; }
+      },
+      async intake(id) {
+        if (await mode() !== 'server') throw new Error('AI agents run on the server (npm install, then set ANTHROPIC_API_KEY).');
+        return http('POST', '/api/requests/' + encodeURIComponent(id) + '/ai/intake', {}, 'studio');
+      },
+      async reply(id) {
+        if (await mode() !== 'server') throw new Error('AI agents run on the server (npm install, then set ANTHROPIC_API_KEY).');
+        return http('POST', '/api/requests/' + encodeURIComponent(id) + '/ai/reply', {}, 'studio');
+      },
+      async post(topic, notes) {
+        if (await mode() !== 'server') throw new Error('AI agents run on the server (npm install, then set ANTHROPIC_API_KEY).');
+        return http('POST', '/api/ai/post', { topic, notes }, 'studio');
+      }
     },
 
     /* ---------- Journal (posts) and Work (works) ---------- */

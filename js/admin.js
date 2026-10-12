@@ -12,7 +12,7 @@
     area: qs('a') || 'reqs', id: qs('id') || '', tab: 'next', filter: 'todo', q: '',
     msg: '', pendingFiles: [], qd: {}, note: {}, sure: '', edit: null, editType: '', preview: false
   };
-  let reqs = [], isLocal = false, busy = false;
+  let reqs = [], isLocal = false, busy = false, aiOn = { enabled: false };
   isLocal = (await API.mode()) === 'local';
 
   /* ================= sign in ================= */
@@ -85,8 +85,8 @@
   function detailView(r) {
     if (!r) return `<div class="ad-detail"><div class="empty"><span class="oc oc3"></span><p>${T('a_pick')}</p></div></div>`;
     const un = Workflow.unread(r, ROLE);
-    const tabs = [['next', T('a_tab_next')], ['msg', T('tab_msg') + (un ? ` <span class="cp-badge dot">${un}</span>` : '')], ['quote', T('a_tab_quote')], ['design', T('a_tab_design')], ['files', T('tab_files')], ['brief', T('a_brief')], ['notes', T('a_tab_notes')]];
-    const body = { next: nextTab, msg: msgTab, quote: quoteTab, design: designTab, files: filesTab, brief: x => PUI.brief(x), notes: notesTab }[ui.tab](r);
+    const tabs = [['next', T('a_tab_next')], ['ai', T('ai_tab') + (aiBadge(r) ? ' <span class="cp-badge">' + aiBadge(r) + '</span>' : '')], ['msg', T('tab_msg') + (un ? ` <span class="cp-badge dot">${un}</span>` : '')], ['quote', T('a_tab_quote')], ['design', T('a_tab_design')], ['files', T('tab_files')], ['brief', T('a_brief')], ['notes', T('a_tab_notes')]];
+    const body = { next: nextTab, ai: aiTab, msg: msgTab, quote: quoteTab, design: designTab, files: filesTab, brief: x => PUI.brief(x), notes: notesTab }[ui.tab](r);
     const m = Workflow.money(r);
     return `<div class="ad-detail">
       <div class="ad-head">
@@ -124,7 +124,47 @@
     : `<button class="${quiet ? 'link' : 'btn'}" data-act="sure" data-a="${action}">${label}</button>`;
 
   function msgTab(r) {
-    return `<div class="th" id="th">${PUI.thread(ROLE, r)}</div>${PUI.composer(ui.msg)}`;
+    return `<div class="th" id="th">${PUI.thread(ROLE, r)}</div>${PUI.composer(ui.msg)}
+      <div class="acts" style="margin-top:10px"><button class="btn alt sm" data-act="ai-reply">${T('ai_reply')}</button><span class="note" id="ai-p"></span></div>`;
+  }
+
+  /* ---------- AI brief (studio-only drafts from server/agents.js) ---------- */
+  const aiBadge = r => { const b = r.ai && r.ai.brief; return !b ? '' : b.status === 'running' ? '…' : b.status === 'ready' ? '✓' : b.status === 'error' ? '!' : ''; };
+  function aiTab(r) {
+    const b = r.ai && r.ai.brief;
+    const run = aiOn.enabled ? `<button class="btn" data-act="ai-run">${T(b ? 'ai_rerun' : 'ai_run')}</button>` : '';
+    if (!b || b.status !== 'ready') {
+      const msg = !b ? (aiOn.enabled ? T('ai_none') : T(isLocal ? 'ai_off_demo' : 'ai_off')) : b.status === 'running' ? T('ai_running') : T('ai_error', b.error || '');
+      return `<div class="cp-panel"><h4>${T('ai_title')}</h4><p>${esc(msg)}</p><div class="acts" style="margin-top:14px">${b && b.status === 'running' ? '' : run}</div></div>`;
+    }
+    const x = b.data, list = a => (a || []).length ? `<ul>${a.map(i => `<li>${esc(i)}</li>`).join('')}</ul>` : '<p class="note">—</p>';
+    const link = u => /^https?:\/\//.test(u || '') ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40))}</a>` : '';
+    return `<div class="ai" data-no-tr>
+      <div class="ai-head"><span class="pill dark">AI</span><span class="note">${b.demo ? T('ai_demo') : T('ai_meta', fmtDate(b.at, true), b.model || '')}</span>${run ? `<span class="cp-sp"></span>${run.replace('class="btn"', 'class="btn alt sm"')}` : ''}</div>
+      <p class="ai-sum">${esc(x.summary)}</p>
+      <div class="ai-grid">
+        <div><b>${T('ai_snap')}</b><p>${esc(x.snapshot.business)}<br><small>${esc(x.snapshot.industry)}</small></p><p><small>${T('ai_aud')}</small><br>${esc(x.snapshot.audience)}</p>${list(x.snapshot.goals)}</div>
+        <div><b>${T('ai_concept')}</b><p>${esc(x.concept.positioning)}</p><p><small>${T('ai_tone')}</small><br>${esc(x.concept.tone)}</p><p>${(x.concept.personality || []).concat(x.concept.keywords || []).map(k => `<span class="pill">${esc(k)}</span>`).join(' ')}</p></div>
+      </div>
+      <div class="cp-h"><span>${T('ai_dirs')}</span></div>
+      <div class="ai-dirs">${(x.directions || []).map(d => `<div class="ai-dir">
+        <div class="ai-sw">${(d.palette || []).map(p => `<i style="background:${/^#[0-9a-f]{3,8}$/i.test(p.hex) ? p.hex : '#ccc'}" title="${esc(p.name)} ${esc(p.hex)}"></i>`).join('')}</div>
+        <b>${esc(d.key)} · ${esc(d.name)}</b><p>${esc(d.idea)}</p>
+        <p><small>${T('ai_mark')}</small><br>${esc(d.mark)}</p><p><small>${T('ai_type')}</small><br>${esc(d.typography)}</p>
+        <p><small>${T('ai_why')}</small><br>${esc(d.why)}</p>${d.risk ? `<p class="ai-risk">⚠ ${esc(d.risk)}</p>` : ''}
+        <p class="ai-hex">${(d.palette || []).map(p => esc(p.hex)).join(' · ')}</p></div>`).join('')}</div>
+      <div class="ai-grid">
+        <div><div class="cp-h"><span>${T('ai_research')}</span></div><ul>${(x.research || []).map(f => `<li>${esc(f.finding)} ${link(f.source)}</li>`).join('')}</ul>
+          <div class="cp-h"><span>${T('ai_comp')}</span></div><ul>${(x.competitors || []).map(c => `<li><b>${esc(c.name)}</b> — ${esc(c.note)} ${link(c.url)}</li>`).join('')}</ul></div>
+        <div><div class="cp-h"><span>${T('ai_deliv')}</span></div><p><b>${esc(x.deliverables.format)}</b></p>${list(x.deliverables.pages_or_screens)}<p class="note">${esc(x.deliverables.notes)}</p>
+          ${x.marketing && x.marketing.needed ? `<div class="cp-h"><span>${T('ai_mkt')}</span></div><p>${esc(x.marketing.monthly_plan)}</p><p><small>${T('ai_ch')}</small></p>${list(x.marketing.channels)}<p><small>${T('ai_ideas')}</small></p>${list(x.marketing.content_ideas)}<p><small>${T('ai_kw')}</small></p><p>${(x.marketing.ad_keywords || []).map(k => `<span class="pill">${esc(k)}</span>`).join(' ')}</p><p><small>${T('ai_blog')}</small></p>${list(x.marketing.blog_topics)}` : ''}</div>
+      </div>
+      <div class="cp-h"><span>${T('ai_quote')}</span><button class="link" data-act="ai-quote">${T('ai_use_quote')}</button></div>
+      <div class="ai-q">${(x.quote || []).map(q => `<p><span>${esc(q.label)}</span><span>${money(q.amount)}</span></p>`).join('')}</div><p class="note">${esc(x.quote_notes)}</p>
+      <div class="ai-grid">
+        <div><div class="cp-h"><span>${T('ai_q')}</span><button class="link" data-act="ai-ask">${T('ai_ask')}</button></div>${list(x.questions)}</div>
+        <div><div class="cp-h"><span>${T('ai_flags')}</span></div>${list(x.red_flags)}<div class="cp-h"><span>${T('ai_next')}</span></div>${list(x.next_steps)}</div>
+      </div></div>`;
   }
 
   /* ---------- quote editor ---------- */
@@ -165,6 +205,12 @@
       ${r.quote ? `<div class="cp-h"><span>${T('a_q_cur', r.quote.version)}</span></div>${PUI.quote(r)}` : ''}`;
   }
 
+  const aiRound = (r, n) => {
+    const t = r.ai && r.ai.rounds && r.ai.rounds[n];
+    if (!t) return '';
+    return `<div class="ai-round" data-no-tr><span class="pill dark">AI</span> <b>${T('ai_tasks')}</b><ul>${(t.tasks || []).map(i => `<li>${esc(i)}</li>`).join('')}</ul>${(t.out_of_scope || []).length ? `<p class="ai-risk">⚠ ${T('ai_scope')}: ${t.out_of_scope.map(esc).join(' · ')}</p>` : ''}${t.question ? `<p><small>${T('ai_q1')}</small> ${esc(t.question)}</p>` : ''}</div>`;
+  };
+
   /* ---------- design ---------- */
   function designTab(r) {
     const d = r.design;
@@ -178,6 +224,7 @@
             <input type="text" id="dt${i}" placeholder="${esc(T('a_d_title'))}" value="${esc((ex[i] && ex[i].title) || '')}">
             <textarea id="dd${i}" rows="2" placeholder="${esc(T('a_d_desc'))}">${esc((ex[i] && ex[i].desc) || '')}</textarea>
             <label class="fl-l">${T('a_d_files')}</label><input type="file" id="df${i}" multiple accept="image/*,.pdf">
+            <input type="url" id="dl${i}" placeholder="${esc(T('a_figma'))} https://www.figma.com/…">
             <label class="ck"><input type="checkbox" id="dm${i}">${T('a_d_demo')}</label></div>`).join('')}
           <div class="err" id="er" role="alert"></div><div class="acts"><button class="btn" data-act="dirs">${T('a_d_pub')}</button></div></div>` : ''}`;
     } else {
@@ -187,16 +234,18 @@
         h += `<div class="cp-h"><span>${T('a_d_ver')}</span></div><div class="cp-panel">
           <label class="fl-l" style="margin-top:0">${T('a_d_ver_note')}</label><textarea id="vn" rows="3"></textarea>
           <label class="fl-l">${T('a_d_files')}</label><input type="file" id="vf" multiple accept="image/*,.pdf">
+          <label class="fl-l">${T('a_figma')}</label><input type="url" id="vl" placeholder="https://www.figma.com/…">
           ${last && last.demo ? `<label class="ck"><input type="checkbox" id="vd">${T('a_d_demo')}</label>` : ''}
           <div class="err" id="er" role="alert"></div><div class="acts"><button class="btn" data-act="ver">${T('a_d_ver_pub', d.versions.length + 1)}</button></div></div>`;
       }
-      h += `<div class="cp-h"><span>${T('a_d_rounds')}</span></div>` + (d.rounds.length ? d.rounds.slice().reverse().map(x => `<div class="cp-hs"><div class="hh"><span><b>${T('hs_round', x.n)}</b>${x.extra ? ' · ' + T('hs_xr') : ''} · ${fmtDate(x.at, true)}</span><span>${x.done ? T('hs_done', x.deliveredAs) : '<b>' + T('hs_wip') + '</b>'}</span></div>${x.areas.length ? `<div class="ar">${x.areas.map(a => T('ar_' + a)).join(' · ')}</div>` : ''}${x.t1 ? `<q data-no-tr>${esc(x.t1)}</q>` : ''}${x.t2 ? `<q data-no-tr style="opacity:.7;margin-top:6px">${esc(x.t2)}</q>` : ''}${x.files.length ? `<div style="margin-top:8px">${PUI.visual(ROLE, r, x, 1)}</div>` : ''}</div>`).join('') : `<p class="note">${T('a_d_none')}</p>`);
+      h += `<div class="cp-h"><span>${T('a_d_rounds')}</span></div>` + (d.rounds.length ? d.rounds.slice().reverse().map(x => `<div class="cp-hs"><div class="hh"><span><b>${T('hs_round', x.n)}</b>${x.extra ? ' · ' + T('hs_xr') : ''} · ${fmtDate(x.at, true)}</span><span>${x.done ? T('hs_done', x.deliveredAs) : '<b>' + T('hs_wip') + '</b>'}</span></div>${x.areas.length ? `<div class="ar">${x.areas.map(a => T('ar_' + a)).join(' · ')}</div>` : ''}${x.t1 ? `<q data-no-tr>${esc(x.t1)}</q>` : ''}${x.t2 ? `<q data-no-tr style="opacity:.7;margin-top:6px">${esc(x.t2)}</q>` : ''}${x.files.length ? `<div style="margin-top:8px">${PUI.visual(ROLE, r, x, 1)}</div>` : ''}${aiRound(r, x.n)}</div>`).join('') : `<p class="note">${T('a_d_none')}</p>`);
       h += `<div class="cp-h"><span>${T('pv')}</span></div>` + d.versions.slice().reverse().map(v => `<div class="ad-ver"><b>${T('ver', v.n)}</b> · ${fmtDate(v.at, true)}${v.note ? `<p data-no-tr style="white-space:pre-wrap">${esc(v.note)}</p>` : ''}${PUI.visual(ROLE, r, v, v.n)}</div>`).join('');
     }
     const finals = r.files.filter(f => f.kind === 'final');
     h += `<div class="cp-h"><span>${T('a_f_final')}</span></div><p class="note">${T('a_f_final_x')}</p>
       ${finals.length ? PUI.files(ROLE, r, finals) : ''}
-      <div class="acts" style="margin-top:14px"><label class="btn alt file-btn" style="text-decoration:none">${T('f_up')}<input type="file" id="ff" multiple></label><span class="note" id="ff-p"></span></div>`;
+      <div class="acts" style="margin-top:14px"><label class="btn alt file-btn" style="text-decoration:none">${T('f_up')}<input type="file" id="ff" multiple></label><span class="note" id="ff-p"></span></div>
+      <label class="fl-l">${T('a_figma_final')}</label><div class="cmp"><input type="url" id="fl" value="${esc(r.finalLink || '')}" placeholder="https://www.figma.com/…"><button class="btn alt" data-act="flink">${T('a_save')}</button></div>`;
     return h;
   }
 
@@ -227,7 +276,10 @@
     const f = (k, label, v, attrs) => `<label class="fl-l">${label}</label><input type="text" data-c="${k}" value="${esc(v == null ? '' : v)}" ${attrs || ''}>`;
     const cb = (k, label) => `<label class="ck"><input type="checkbox" data-c="${k}" ${x[k] ? 'checked' : ''}>${label}</label>`;
     const coverPrev = type === 'posts' ? postCover(x) : workCover(x);
-    let h = `<div class="ad-ed"><div>` + f('title', T('a_c_title'), x.title) + f('slug', T('a_c_slug'), x.slug, 'pattern="[a-z0-9-]+"');
+    const aiBox = type === 'posts' ? `<div class="cp-panel ai-post"><b><span class="pill dark">AI</span> ${T('ai_post')}</b>
+      <input type="text" id="ai-topic" placeholder="${esc(T('ai_topic'))}" style="margin-top:10px"><textarea id="ai-notes" rows="2" placeholder="${esc(T('ai_pnotes'))}" style="margin-top:8px"></textarea>
+      <div class="acts" style="margin-top:10px"><button class="btn sm" data-act="ai-post">${T('ai_post_btn')}</button><span class="note" id="ai-pp">${aiOn.enabled ? '' : esc(T('ai_off_short'))}</span></div></div>` : '';
+    let h = aiBox + `<div class="ad-ed"><div>` + f('title', T('a_c_title'), x.title) + f('slug', T('a_c_slug'), x.slug, 'pattern="[a-z0-9-]+"');
     if (type === 'posts') {
       h += `<div class="ad-2"><div><label class="fl-l">${T('a_c_date')}</label><input type="date" data-c="date" value="${esc(x.date)}"></div><div>${f('tags', T('a_c_tags'), (x.tags || []).join(', '))}</div></div>`
         + `<label class="fl-l">${T('a_c_excerpt')}</label><textarea rows="2" data-c="excerpt">${esc(x.excerpt || '')}</textarea>`;
@@ -313,10 +365,10 @@
       try {
         const dirs = [];
         for (let i = 0; i < 3; i++) {
-          const title = $('#dt' + i).value.trim(), desc = $('#dd' + i).value.trim(), fl = $('#df' + i).files, demo = $('#dm' + i).checked;
-          if (!title && !fl.length && !demo) continue;
+          const title = $('#dt' + i).value.trim(), desc = $('#dd' + i).value.trim(), fl = $('#df' + i).files, demo = $('#dm' + i).checked, link = $('#dl' + i).value.trim();
+          if (!title && !fl.length && !demo && !link) continue;
           const files = await PUI.uploadAll(ROLE, r.id, fl, 'direction');
-          dirs.push({ title, desc, files, demo: demo ? 'ABC'[dirs.length] : null });
+          dirs.push({ title, desc, files, link, demo: demo ? 'ABC'[dirs.length] : null });
         }
         await act('publish_directions', { directions: dirs });
       } catch (x) { $('#er').textContent = x.message; } finally { b.disabled = false; }
@@ -326,10 +378,28 @@
       b.disabled = true;
       try {
         const files = await PUI.uploadAll(ROLE, r.id, $('#vf').files, 'version');
-        await act('publish_version', { note: $('#vn').value, files, demo: $('#vd') && $('#vd').checked });
+        await act('publish_version', { note: $('#vn').value, files, link: $('#vl').value.trim(), demo: $('#vd') && $('#vd').checked });
       } catch (x) { $('#er').textContent = x.message; } finally { b.disabled = false; }
       return;
     }
+    if (a === 'ai-run') { try { await API.ai.intake(r.id); Site.toast(T('ai_running')); await loadReqs(); rerender(); } catch (x) { Site.toast(x.message); } return; }
+    if (a === 'ai-quote') { const x = r.ai.brief.data; ui.qd[r.id] = Object.assign(draftFor(r), { lines: x.quote.map(q => ({ label: q.label, amount: q.amount })), notes: x.quote_notes || '' }); ui.tab = 'quote'; return rerender(); }
+    if (a === 'ai-ask') { ui.msg = r.ai.brief.data.questions.map((q, i) => `${i + 1}. ${q}`).join('\n'); ui.tab = 'msg'; return rerender(); }
+    if (a === 'ai-reply') {
+      const p = $('#ai-p'); b.disabled = true; p.textContent = T('ai_writing');
+      try { const out = await API.ai.reply(r.id); ui.msg = out.draft; rerender(); } catch (x) { p.textContent = x.message; } finally { b.disabled = false; }
+      return;
+    }
+    if (a === 'ai-post') {
+      const p = $('#ai-pp'); b.disabled = true; p.textContent = T('ai_writing');
+      try {
+        const out = await API.ai.post($('#ai-topic').value, $('#ai-notes').value);
+        Object.assign(ui.edit, { title: out.title, slug: ui.editSlug ? ui.edit.slug : slugify(out.slug || out.title), excerpt: out.excerpt, tags: out.tags, body: out.body });
+        rerender();
+      } catch (x) { p.textContent = x.message; } finally { b.disabled = false; }
+      return;
+    }
+    if (a === 'flink') return act('deliver_files', { files: r.files.filter(f => f.kind === 'final').map(f => f.id), link: $('#fl').value.trim() }, T('saved'));
     if (a === 'note') { if (await act('set_note', { note: ui.note[r.id] !== undefined ? ui.note[r.id] : r.internalNote })) { delete ui.note[r.id]; Site.toast(T('saved')); } return; }
     // content
     if (a === 'cnew') { ui.edit = blank(ui.area); ui.editSlug = ''; ui.preview = false; return rerender(); }
@@ -410,6 +480,7 @@
   let unsub = null;
   async function start() {
     if (!(await loadReqs())) return;
+    aiOn = await API.ai.status();
     if (!ui.id && reqs.length) { const first = reqs.find(needsAction) || reqs[0]; ui.id = first.id; }
     // Start on 'Needs action' only when something needs action.
     if (ui.filter === 'todo' && !reqs.some(needsAction)) ui.filter = reqs.some(FILTERS.open) ? 'open' : 'all';

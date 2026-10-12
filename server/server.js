@@ -15,6 +15,7 @@ const path = require('path');
 const crypto = require('crypto');
 const W = require('../js/workflow.js');
 const SEED = require('../js/data/seed.js');
+const AI = require('./agents.js');
 
 const PORT = Number(process.env.PORT) || 8080;
 const ROOT = path.resolve(__dirname, '..');
@@ -25,6 +26,10 @@ const DB_FILE = path.join(DATA, 'db.json');
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const MAX_UPLOAD = (Number(process.env.MAX_UPLOAD_MB) || 25) * 1024 * 1024;
 const SESSION_DAYS = 30;
+const SITE_URL = (process.env.SITE_URL || '').replace(/\/$/, '');
+const STUDIO_EMAIL = process.env.STUDIO_EMAIL || '';
+const FROM_EMAIL = process.env.FROM_EMAIL || '';
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 
 [DATA, FILES, MEDIA].forEach(d => fs.mkdirSync(d, { recursive: true }));
 
@@ -44,17 +49,89 @@ function save() {
   }, 50);
 }
 
-/* ---------------- notifications ----------------
- * Hook your email provider in here (Resend, Postmark, SES…). Until then the
- * server prints what it would send, so you can copy access codes manually. */
-function notify(event, req, extra) {
-  const who = event.startsWith('client:') ? req.client.email : (process.env.STUDIO_EMAIL || 'studio');
-  console.log(`[notify] ${event} → ${who} · ${req.id}${extra ? ' · ' + extra : ''}`);
+/* ---------------- email ----------------
+ * Set RESEND_API_KEY, FROM_EMAIL (a verified sender) and STUDIO_EMAIL to send real
+ * email through Resend (resend.com). Without them the server prints what it would send. */
+const escHtml = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+async function sendEmail(to, subject, html) {
+  if (!RESEND_API_KEY || !FROM_EMAIL || !to) { console.log(`[email] → ${to || '(no address)'} · ${subject}`); return; }
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + RESEND_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: FROM_EMAIL, to: [to], subject, html })
+    });
+    if (!res.ok) console.error('[email] failed', res.status, await res.text());
+  } catch (e) { console.error('[email] failed', e.message); }
+}
+const wrap = (title, body, link, label) => `<div style="font:15px/1.6 -apple-system,Segoe UI,sans-serif;max-width:560px;color:#111">
+  <p style="font-weight:700;letter-spacing:.04em">WHETŪ STUDIO</p><h2 style="font-size:22px;margin:18px 0 8px">${escHtml(title)}</h2>${body}
+  ${link ? `<p style="margin:24px 0"><a href="${escHtml(link)}" style="background:#111;color:#fff;padding:12px 20px;text-decoration:none;display:inline-block">${escHtml(label)}</a></p>` : ''}</div>`;
+const portalLink = r => SITE_URL ? `${SITE_URL}/login.html?email=${encodeURIComponent(r.client.email)}` : '';
+const adminLink = r => SITE_URL ? `${SITE_URL}/admin.html?id=${encodeURIComponent(r.id)}` : '';
+
+function notify(event, r) {
+  const toClient = (subject, title, body) => sendEmail(r.client.email, subject, wrap(title, body, portalLink(r), 'Open My Studio'));
+  const toStudio = (subject, body) => sendEmail(STUDIO_EMAIL, subject, wrap(subject, body, adminLink(r), 'Open in Studio'));
+  const lastText = by => { const m = [...r.messages].reverse().find(x => x.by === by); return m ? escHtml(m.text).replace(/\n/g, '<br>') : ''; };
+  switch (event) {
+    case 'studio:new-request': {
+      const b = r.ai && r.ai.brief && r.ai.brief.data;
+      const est = r.estimate.tot ? `NZD ${r.estimate.tot.toFixed(2)} incl. GST (indicative)` : 'No fixed-price items';
+      return toStudio(`New request: ${r.biz} (${r.id})`,
+        `<p><b>${escHtml(r.client.name)}</b> · ${escHtml(r.client.email)}<br>${escHtml((r.services || []).join(', '))} · ${est}</p>` +
+        (b ? `<h3>AI brief</h3><p>${escHtml(b.summary)}</p><ul>${(b.directions || []).map(d => `<li><b>${escHtml(d.key)} · ${escHtml(d.name)}</b> — ${escHtml(d.idea)}</li>`).join('')}</ul>
+              <p><b>Questions to ask:</b></p><ul>${(b.questions || []).map(q => `<li>${escHtml(q)}</li>`).join('')}</ul>`
+           : (r.ai && r.ai.brief && r.ai.brief.status === 'error' ? `<p>AI brief failed: ${escHtml(r.ai.brief.error)}</p>` : '')));
+    }
+    case 'client:access-code':
+      return toClient('Your WHETŪ Studio request', 'Thanks, your request is in.',
+        `<p>Request ${escHtml(r.id)}. Your designer will review it and publish a quote in My Studio.</p><p>Sign in with this email and your access code: <b style="font-size:20px;letter-spacing:.12em">${escHtml(r.accessCode)}</b></p>`);
+    case 'client:quote': return toClient('Your quote is ready', 'Your confirmed quote is ready.', `<p>Quote ${escHtml(r.quote.id)} v${r.quote.version}: NZD ${r.quote.total.toFixed(2)} incl. GST.</p>`);
+    case 'client:message': return toClient('New message from your designer', 'You have a new message.', `<p>${lastText('studio')}</p>`);
+    case 'client:deposit': return toClient('Deposit received', 'Deposit received. Design has started.', '');
+    case 'client:directions': return toClient('Your concept directions are ready', 'Your concept directions are ready to review.', '');
+    case 'client:version': return toClient('A new design version is ready', 'A new version is ready for your review.', '');
+    case 'client:files': return toClient('Your final files are ready', 'Your final files are ready to download.', '');
+    case 'studio:message': return toStudio(`New message: ${r.biz}`, `<p>${lastText('client')}</p>`);
+    default: return toStudio(`${event.replace('studio:', '').replace(/-/g, ' ')}: ${r.biz} (${r.id})`, '');
+  }
 }
 const NOTIFY_ON = {
   studio: { publish_quote: 'client:quote', confirm_deposit: 'client:deposit', publish_directions: 'client:directions', publish_version: 'client:version', confirm_balance: 'client:files', message: 'client:message' },
-  client: { accept_quote: 'studio:accepted', decline_quote: 'studio:declined', choose_direction: 'studio:direction', submit_round: 'studio:round', add_round: 'studio:extra-round', approve_design: 'studio:approved', message: 'studio:message' }
+  client: { accept_quote: 'studio:quote-accepted', decline_quote: 'studio:quote-declined', choose_direction: 'studio:direction-chosen', submit_round: 'studio:feedback-round', add_round: 'studio:extra-round', approve_design: 'studio:design-approved', submit_brief: 'studio:brief-received', message: 'studio:message' }
 };
+
+/* ---------------- AI agents (studio-only drafts) ---------------- */
+function setAi(id, key, val) {
+  const r = db.requests[id];
+  if (!r) return;
+  r.ai = r.ai || {};
+  r.ai[key] = val;
+  r.updatedAt = Date.now();
+  save();
+}
+async function runIntake(id, emailAfter) {
+  const r = db.requests[id];
+  if (!AI.enabled()) { if (emailAfter) notify('studio:new-request', r); return; }
+  setAi(id, 'brief', { status: 'running', at: Date.now() });
+  try {
+    const data = await AI.intake(db.requests[id]);
+    setAi(id, 'brief', { status: 'ready', at: Date.now(), model: AI.MODEL, data });
+  } catch (e) {
+    console.error('[ai] intake failed', id, e.message);
+    setAi(id, 'brief', { status: 'error', at: Date.now(), error: e.message });
+  }
+  if (emailAfter) notify('studio:new-request', db.requests[id]);
+}
+async function runRound(id, n) {
+  if (!AI.enabled()) return;
+  try {
+    const data = await AI.round(db.requests[id], n);
+    const rounds = Object.assign({}, (db.requests[id].ai || {}).rounds, { [n]: Object.assign({ at: Date.now() }, data) });
+    setAi(id, 'rounds', rounds);
+  } catch (e) { console.error('[ai] round failed', id, e.message); }
+}
 
 /* ---------------- auth ---------------- */
 const tokenHash = t => crypto.createHash('sha256').update(t).digest('hex');
@@ -152,8 +229,8 @@ async function api(req, res, url) {
     const body = await readJson(req);
     const r = W.createRequest(body, { taken: id => !!db.requests[id] });
     db.requests[r.id] = r; save();
-    notify('studio:new-request', r);
-    notify('client:access-code', r, 'code ' + r.accessCode);
+    notify('client:access-code', r);
+    runIntake(r.id, true); // emails the studio when the AI brief is ready (or straight away without AI)
     return send(res, 201, { id: r.id, accessCode: r.accessCode, email: r.client.email });
   }
 
@@ -193,6 +270,7 @@ async function api(req, res, url) {
       db.requests[r.id] = next; save();
       const ev = (NOTIFY_ON[s.role] || {})[b.action];
       if (ev) notify(ev, next);
+      if (b.action === 'submit_round') runRound(r.id, next.design.rounds.length);
       return send(res, 200, { request: W.view(next, s.role) });
     }
     if (mm[2] === '/files' && m === 'POST') {
@@ -214,6 +292,24 @@ async function api(req, res, url) {
     const visible = W.view(r, s.role).files.find(f => f.id === mm[2]);
     if (!visible) return err(res, 404, 'File not found.');
     return serveFile(res, path.join(FILES, r.id, visible.id + path.extname(visible.name).toLowerCase()), { download: visible.name });
+  }
+
+  if (p === '/api/ai' && m === 'GET') return send(res, 200, { enabled: AI.enabled(), model: AI.MODEL });
+  mm = p.match(/^\/api\/requests\/([\w-]+)\/ai\/(intake|reply)$/);
+  if (mm && m === 'POST') {
+    if (roleOf(s) !== 'studio') return err(res, 401, 'Please sign in again.');
+    const r = db.requests[mm[1]];
+    if (!r) return err(res, 404, 'Project not found.');
+    if (!AI.enabled()) return err(res, 503, 'AI is off. Run npm install and set ANTHROPIC_API_KEY on the server.');
+    if (mm[2] === 'intake') { runIntake(r.id, false); return send(res, 202, { ok: true }); }
+    try { return send(res, 200, await AI.reply(r)); } catch (e) { return err(res, 502, 'AI draft failed: ' + e.message); }
+  }
+  if (p === '/api/ai/post' && m === 'POST') {
+    if (roleOf(s) !== 'studio') return err(res, 401, 'Please sign in again.');
+    if (!AI.enabled()) return err(res, 503, 'AI is off. Run npm install and set ANTHROPIC_API_KEY on the server.');
+    const b = await readJson(req);
+    if (!String(b.topic || '').trim()) return err(res, 400, 'Write a topic first.');
+    try { return send(res, 200, await AI.post(String(b.topic).slice(0, 500), String(b.notes || '').slice(0, 3000))); } catch (e) { return err(res, 502, 'AI draft failed: ' + e.message); }
   }
 
   if (p === '/api/media' && m === 'POST') {
@@ -256,7 +352,8 @@ const server = http.createServer(async (req, res) => {
     if (rel.endsWith('/')) rel += 'index.html';
     const file = path.resolve(ROOT, '.' + rel);
     // Never serve the server folder (data, sessions, uploads) or anything outside the site.
-    if (!file.startsWith(ROOT + path.sep) || file.startsWith(path.join(ROOT, 'server') + path.sep)) return send(res, 404, 'Not found', { 'Content-Type': 'text/plain' });
+    const relPath = path.relative(ROOT, file);
+    if (!file.startsWith(ROOT + path.sep) || /^(server|node_modules|docs)([\\/]|$)|^package(-lock)?\.json$|(^|[\\/])\./.test(relPath)) return send(res, 404, 'Not found', { 'Content-Type': 'text/plain' });
     if (!path.extname(file) && fs.existsSync(file + '.html')) return serveFile(res, file + '.html');
     return serveFile(res, file);
   } catch (e) {
@@ -270,4 +367,6 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`WHETŪ Studio running on http://localhost:${PORT}`);
   if (!ADMIN_PASSWORD) console.log('⚠  ADMIN_PASSWORD is not set — studio sign-in is disabled until you set it.');
+  console.log(AI.enabled() ? `AI agents on (${AI.MODEL}).` : 'AI agents off (npm install + ANTHROPIC_API_KEY to turn on).');
+  console.log(RESEND_API_KEY && FROM_EMAIL ? 'Email on (Resend).' : 'Email off: printing emails to this console.');
 });

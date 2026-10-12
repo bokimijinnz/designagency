@@ -138,3 +138,4 @@
   .brief .row2 { grid-template-columns: 1fr; gap: 2px; }
   .cmp { grid-template-columns: 1fr; }
 }
+.btn.figma { margin: 0 0 14px; }

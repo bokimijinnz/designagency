@@ -5,7 +5,7 @@
 (async function () {
   const ROLE = 'client';
   const el = $('#portal');
-  const ui = { id: qs('p') || '', tab: qs('tab') || 'over', view: null, dirTab: null, confirm: '', flash: '', msg: '', note: '', decl: '', draft: { areas: [], t1: '', t2: '' }, pendingFiles: [] };
+  const ui = { id: qs('p') || '', tab: qs('tab') || 'over', view: null, dirTab: null, confirm: '', flash: '', msg: '', note: '', decl: '', draft: { areas: [], t1: '', t2: '' }, pendingFiles: [], bd: { feel: [] } };
   let list = [], req = null, isLocal = false, busy = false;
 
   const sess = (await API.session(ROLE)) || ((await API.demoSignIn(ROLE)) && (await API.session(ROLE)));
@@ -104,12 +104,15 @@
 
     if (r.status === 'complete') {
       const finals = r.files.filter(f => f.kind === 'final');
-      h = `<h3>${T('hd_t')}</h3><p class="cp-lead">${T('hd_x')}</p><div class="cp-h"><span>${T('stage_6')}</span></div>${finals.length ? PUI.files(ROLE, r, finals) : `<p class="note">${T('hd_wait')}</p>`}`;
+      h = `<h3>${T('hd_t')}</h3><p class="cp-lead">${T('hd_x')}</p><div class="cp-h"><span>${T('stage_6')}</span></div>${r.finalLink ? `<p><a class="btn" href="${esc(r.finalLink)}" target="_blank" rel="noopener">${T('open_figma')}</a></p>` : ''}${finals.length ? PUI.files(ROLE, r, finals) : (r.finalLink ? '' : `<p class="note">${T('hd_wait')}</p>`)}`;
     }
 
     if (r.status === 'declined' || r.status === 'cancelled') {
       h = `<h3>${T(r.status === 'declined' ? 'cl_dec' : 'cl_can')}</h3><p class="cp-lead">${T('cl_x')}</p><div class="acts"><button class="btn" data-act="go-msg">${T('ask')}</button></div>`;
     }
+
+    // Short design brief: asked after the quote instead of in the estimate form.
+    if (!r.brief && (r.status === 'accepted' || (r.status === 'active' && ['preparing', 'choose'].includes(ph)))) h += briefForm();
 
     // A peek at the latest message from the studio, so it's never missed.
     const last = [...r.messages].reverse().find(m => m.by === 'studio');
@@ -118,6 +121,17 @@
       h += `<button class="msg-peek" data-act="go-msg"><span><b>${T('m_studio')}</b> · <span data-no-tr>${esc((last.text || '📎').slice(0, 140))}${(last.text || '').length > 140 ? '…' : ''}</span></span><span>${unread ? `<span class="cp-badge dot">${unread}</span> ` : ''}${T('tab_msg')} →</span></button>`;
     }
     return h;
+  }
+
+  const FEELS = ['Trustworthy', 'Warm', 'Premium', 'Playful', 'Bold', 'Calm', 'Modern', 'Traditional', 'Local', 'Friendly'];
+  function briefForm() {
+    const bd = ui.bd, ta = (k, rows) => `<label class="fl-l" for="b-${k}">${T('br_' + k)}</label><textarea id="b-${k}" rows="${rows || 2}" placeholder="${esc(T('br_' + k + '_ph'))}">${esc(bd[k] || '')}</textarea>`;
+    return `<div class="cp-h"><span>${T('br_h')}</span><span>${T('br_time')}</span></div><div class="cp-panel">
+      <h4>${T('br_t')}</h4><p>${T('br_x')}</p>
+      ${ta('story', 3)}${ta('audience')}
+      <div class="fl-l">${T('br_feel')}</div><div class="chips">${FEELS.map(f => `<button type="button" class="chip" data-act="feel" data-v="${f}" aria-pressed="${bd.feel.includes(f)}">${tr(f)}</button>`).join('')}</div>
+      ${ta('admire')}${ta('avoid')}${ta('have')}
+      <div class="err" id="er" role="alert"></div><div class="acts" style="margin-top:12px"><button class="btn" data-act="brief">${T('br_send')}</button></div></div>`;
   }
 
   function designReview(r, ph, price) {
@@ -245,6 +259,8 @@
       } catch (x) { $('#er').textContent = x.message; } finally { b.disabled = false; }
       return;
     }
+    if (a === 'feel') { const v = b.dataset.v, i = ui.bd.feel.indexOf(v); i < 0 ? ui.bd.feel.push(v) : ui.bd.feel.splice(i, 1); b.setAttribute('aria-pressed', i < 0); return; }
+    if (a === 'brief') { if (await act('submit_brief', ui.bd, T('fl_brief'))) ui.bd = { feel: [] }; return; }
     if (a === 'buy') return act('add_round', {}, T('fl_buy'));
     if (a === 'approve') return act('approve_design', {}, T('fl_appr'));
   });
@@ -256,6 +272,7 @@
     else if (t.id === 'cnote') ui.note = t.value;
     else if (t.id === 'decl') ui.decl = t.value;
     else if (t.id === 'cmp-t') ui.msg = t.value;
+    else if (t.id && t.id.startsWith('b-')) ui.bd[t.id.slice(2)] = t.value;
   });
 
   el.addEventListener('change', async e => {

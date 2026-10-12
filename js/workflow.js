@@ -19,6 +19,8 @@
   const STAGES = ['Request sent', 'In review', 'Quote', 'Deposit', 'Design', 'Final payment', 'Handover'];
   const STAGE_OF = { new: 1, reviewing: 1, quoted: 2, accepted: 3, active: 4, approved: 5, complete: 7, declined: 2, cancelled: 1 };
   const AREAS = ['logo', 'col', 'type', 'layout', 'words', 'other'];
+  // The design brief clients fill in after the quote (kept short on purpose).
+  const BRIEF_KEYS = ['story', 'audience', 'feel', 'admire', 'avoid', 'have'];
 
   class WorkflowError extends Error {
     constructor(code, msg) { super(msg || code); this.code = code; }
@@ -68,7 +70,7 @@
       },
       quote: null, quoteHistory: [],
       design: { directions: [], chosen: null, chosenAt: 0, chosenNote: '', versions: [], rounds: [], extraRounds: 0, included: CFG.includedRounds },
-      finalFiles: [], files: [],
+      finalFiles: [], finalLink: '', files: [], brief: null, ai: {},
       messages: [{ id: uid(), by: 'system', key: 'request_sent', args: {}, text: '', files: [], at: now }],
       read: { client: now, studio: 0 },
       internalNote: ''
@@ -201,10 +203,11 @@
         need(!r.design.chosen, 'chosen', 'The client has already chosen a direction.');
         const list = (Array.isArray(d.directions) ? d.directions : []).slice(0, 3).map((x, i) => ({
           key: 'ABC'[i], title: str(x.title, 80) || 'Direction ' + 'ABC'[i], desc: str(x.desc, 1000),
-          files: fileIds(r, x.files), demo: ['A', 'B', 'C'].includes(x.demo) ? x.demo : null
+          files: fileIds(r, x.files), demo: ['A', 'B', 'C'].includes(x.demo) ? x.demo : null,
+          link: isUrl(str(x.link, 500)) ? str(x.link, 500) : ''
         }));
         need(list.length, 'no_dirs', 'Add at least one direction.');
-        need(list.every(x => x.files.length || x.demo), 'no_visual', 'Each direction needs an image (or a demo board).');
+        need(list.every(x => x.files.length || x.demo || x.link), 'no_visual', 'Each direction needs an image, a PDF, a Figma link or a demo board.');
         r.design.directions = list;
         sys(r, 'directions_published', { n: list.length }, now);
       }
@@ -216,7 +219,7 @@
         need(dir, 'no_dir', 'Choose one of the directions.');
         need(!r.design.chosen, 'chosen', 'A direction is already chosen.');
         r.design.chosen = dir.key; r.design.chosenAt = now; r.design.chosenNote = str(d.note, 2000);
-        r.design.versions = [{ n: 1, note: '', files: dir.files.slice(), demo: dir.demo, at: now }];
+        r.design.versions = [{ n: 1, note: '', files: dir.files.slice(), demo: dir.demo, link: dir.link || '', at: now }];
         sys(r, 'direction_chosen', { d: dir.key }, now);
       }
     },
@@ -249,9 +252,11 @@
         need(r.design.chosen, 'no_dir', 'The client has not chosen a direction yet.');
         const files = fileIds(r, d.files);
         const demo = d.demo ? r.design.chosen : null;
-        need(files.length || demo, 'no_visual', 'Attach at least one image or file.');
         const n = r.design.versions.length + 1;
-        r.design.versions.push({ n, note: str(d.note, 3000), files, demo, at: now });
+        const link = str(d.link, 500);
+        need(!link || isUrl(link), 'bad_link', 'Links must start with https://');
+        need(files.length || demo || link, 'no_visual', 'Attach an image, a PDF or a Figma link.');
+        r.design.versions.push({ n, note: str(d.note, 3000), files, demo, link, at: now });
         const l = lastRound(r);
         if (l && !l.done) { l.done = true; l.deliveredAs = n; }
         sys(r, 'version_published', { n }, now);
@@ -269,8 +274,11 @@
       roles: ['studio'], from: ['active', 'approved', 'complete'],
       run(r, d, role, now) {
         const files = fileIds(r, d.files);
-        need(files.length, 'no_files', 'Upload the final files first.');
+        const link = str(d.link, 500);
+        need(!link || isUrl(link), 'bad_link', 'Links must start with https://');
+        need(files.length || link, 'no_files', 'Upload the final files or add a Figma link first.');
         r.finalFiles = files;
+        if (d.link !== undefined) r.finalLink = link;
         files.forEach(id => { const f = r.files.find(x => x.id === id); if (f) f.kind = 'final'; });
         if (r.status === 'complete') sys(r, 'final_ready', {}, now);
       }
@@ -281,6 +289,15 @@
         r.status = 'complete'; r.completedAt = now;
         sys(r, 'balance_confirmed', {}, now);
         if (r.finalFiles.length) sys(r, 'final_ready', {}, now);
+      }
+    },
+    submit_brief: {
+      roles: ['client'], from: ['quoted', 'accepted', 'active'],
+      run(r, d, role, now) {
+        const b = {};
+        BRIEF_KEYS.forEach(k => { const v = d[k]; b[k] = Array.isArray(v) ? v.slice(0, 20).map(x => str(x, 100)) : str(v, 3000); });
+        r.brief = Object.assign(b, { at: now });
+        sys(r, 'brief_sent', {}, now);
       }
     },
     set_note: { roles: ['studio'], quiet: true, run(r, d) { r.internalNote = str(d.note, 10000); } },
@@ -313,7 +330,9 @@
     const r = clone(req);
     delete r.internalNote;
     delete r.accessCode;
+    delete r.ai;
     if (r.status !== 'complete') {
+      r.finalLink = '';
       const hidden = new Set(r.finalFiles);
       r.files = r.files.filter(f => !hidden.has(f.id) && f.kind !== 'final');
       r.finalFiles = [];
@@ -333,7 +352,7 @@
   }
 
   return {
-    CFG, STATUS, STAGES, STAGE_OF, AREAS, WorkflowError,
+    CFG, STATUS, STAGES, STAGE_OF, AREAS, BRIEF_KEYS, WorkflowError,
     createRequest, apply, view, addFile, actions: Object.keys(ACTIONS),
     phase, pending, unread, money, quoteTotals, allowedRounds, usedRounds, lastRound,
     isEmail, isUrl, rand, uid

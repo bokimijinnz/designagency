@@ -56,3 +56,27 @@
   .ad-crow .acts { grid-column: 1/-1; }
   .ad-line { grid-template-columns: 1fr 100px 24px; }
 }
+
+/* ---------- AI brief ---------- */
+.ai { font-size: 15px; }
+.ai-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ai-sum { font: 600 clamp(18px, 1.8vw, 22px)/1.45 Inter, "Noto Sans KR", sans-serif; margin: 16px 0 6px; max-width: 70ch; }
+.ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 22px; }
+.ai-grid > div > b { display: block; margin-bottom: 6px; }
+.ai small { opacity: .6; font-size: 12px; letter-spacing: .04em; }
+.ai p { margin: 0 0 10px; }
+.ai ul { margin: 4px 0 12px; padding-left: 18px; }
+.ai li { margin: 4px 0; }
+.ai .pill { margin: 0 4px 6px 0; text-transform: none; letter-spacing: 0; font-size: 12px; }
+.ai-dirs { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.ai-dir { background: var(--sf); padding: 18px; }
+.ai-dir b { display: block; font: 700 18px "Bricolage Grotesque", Inter, sans-serif; margin: 12px 0 6px; }
+.ai-sw { display: flex; height: 44px; }
+.ai-sw i { flex: 1; }
+.ai-hex { font: 12px ui-monospace, Menlo, monospace; opacity: .6; }
+.ai-risk { color: #9a5b00; }
+.ai-q p { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; margin: 0; border-bottom: 1px dashed var(--r); font-variant-numeric: tabular-nums; }
+.ai-round { margin-top: 12px; padding: 12px 14px; background: var(--warm1); font-size: 14px; }
+.ai-round ul { margin: 6px 0; padding-left: 18px; }
+.ai-post b { display: flex; gap: 8px; align-items: center; }
+@media (max-width: 760px) { .ai-grid { grid-template-columns: 1fr; } }

@@ -9,7 +9,7 @@ const PH={"biz": "e.g. Kiwi Coffee Roasters", "what": "e.g. We roast and sell sp
 let LANG = (function () { try { const l = localStorage.getItem('whetu.lang'); return ['en', 'ko', 'zh'].includes(l) ? l : 'en'; } catch (e) { return 'en'; } })();
 const LOC = () => LANG == 'ko' ? 'ko-KR' : LANG == 'zh' ? 'zh-CN' : 'en-NZ';
 function tr(s){if(LANG=='en')return s;const i=LANG=='zh'?1:0,g=x=>{const e=I18N[x];return e?e[i]:null};let r=g(s),m;if(r)return r;
- if(m=s.match(/^STEP (\d) OF 7 · (.+)$/))return(i?`第 ${m[1]} 步，共 7 步`:`7단계 중 ${m[1]}단계`)+' · '+(g(m[2])||m[2]);
+ if(m=s.match(/^STEP (\d) OF (\d) · (.+)$/))return(i?`第 ${m[1]} 步，共 ${m[2]} 步`:`${m[2]}단계 중 ${m[1]}단계`)+' · '+(g(m[3])||g(m[3].charAt(0)+m[3].slice(1).toLowerCase())||m[3]);
  if(m=s.match(/^(\d) (.+)$/)){const n=g(m[2]);if(n)return m[1]+' '+n}
  if(m=s.match(/^(\$[\d,.]+) incl\. GST$/))return i?`${m[1]}（含 GST）`:`${m[1]} (GST 포함)`;
  if(m=s.match(/^([\d–]+) weeks( from design start)?(?: · (\d+) items? quoted separately)?$/))return m[1]+(i?'周':'주')+(m[2]?(i?'（自设计开始起）':' (디자인 착수 후)'):'')+(m[3]?(i?` · ${m[3]} 项单独报价`:` · 별도 견적 ${m[3]}건`):'');

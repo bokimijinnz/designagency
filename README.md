@@ -38,16 +38,23 @@
 > 실제 고객용이 아니에요. 고객과 내가 서로 다른 기기에서 보려면 B를 쓰세요.
 
 ### B. 실제 운영 (서버 모드)
-Node.js 18 이상만 있으면 돼요 (추가 설치 패키지 없음).
+Node.js 18 이상이 필요해요.
 
 ```bash
-ADMIN_PASSWORD='긴-비밀번호' npm start      # http://localhost:8080
+npm install                                  # AI 에이전트용 Claude SDK
+ADMIN_PASSWORD='긴-비밀번호' npm start        # http://localhost:8080
 ```
 
 - 서버가 켜져 있으면 사이트가 자동으로 서버 모드로 바뀌어요.
 - 데이터: `server/data/` (요청·메시지 `db.json`, 업로드 파일). 백업하세요. git에는 올라가지 않아요.
-- 환경변수: `PORT`, `ADMIN_PASSWORD`(필수), `DATA_DIR`, `MAX_UPLOAD_MB`(기본 25), `STUDIO_EMAIL`.
+- 환경변수:
+  - `ADMIN_PASSWORD` (필수), `PORT`, `DATA_DIR`, `MAX_UPLOAD_MB`(기본 25)
+  - **AI 에이전트**: `ANTHROPIC_API_KEY`, `AI_MODEL`(기본 claude-opus-5-5), `STUDIO_LANG`(브리프 언어, 기본 Korean)
+  - **이메일 알림**(Resend): `RESEND_API_KEY`, `FROM_EMAIL`, `STUDIO_EMAIL`(나에게 오는 알림), `SITE_URL`(메일 속 링크)
 - Render, Railway, Fly.io, VPS 등 **디스크가 유지되는** 곳에 HTTPS로 올리세요.
+
+### AI 에이전트
+의뢰가 들어오면 Claude가 고객을 조사해서 브랜드 컨셉, 로고 방향 3개, 견적 초안, 질문 목록을 만들어 디자이너 포털의 **AI 브리프** 탭과 내 이메일로 보내줘요. 자세한 흐름은 [docs/AI-에이전트-워크플로우.md](docs/AI-에이전트-워크플로우.md).
 
 ## 바꿔야 할 것
 
@@ -55,7 +62,7 @@ ADMIN_PASSWORD='긴-비밀번호' npm start      # http://localhost:8080
 - **가격**: `js/pricing.js` 한 곳에서 바꾸면 첫 화면 실시간 견적과 견적 폼에 같이 반영돼요. 홈의 가격표(인보이스)는 `index.html`
 - **추가 수정 회차 가격 / 포함 횟수**: `js/workflow.js`의 `CFG`
 - **블로그·포트폴리오**: `admin.html` → Journal / Work에서 작성·편집. 지금 들어있는 글과 프로젝트는 모두 **샘플**이에요 (`js/data/seed.js`).
-- **이메일 알림**: 지금은 서버 콘솔에 "누구에게 무엇을 보낼지"만 출력돼요 (`server/server.js`의 `notify()`). Resend, Postmark 같은 서비스를 연결하면 고객에게 접속 코드·새 메시지 알림을 보낼 수 있어요.
+- **이메일 알림**: `RESEND_API_KEY` 등을 설정하면 실제로 보내요. 없으면 서버 콘솔에 출력돼요 (`server/server.js`의 `notify()`).
 - **결제**: 견적 작성 시 결제 링크(Stripe Payment Link 등)를 넣으면 고객 포털에 "결제" 버튼이 생겨요. 입금 확인은 내가 관리자에서 눌러요.
 
 ## 파일 구조

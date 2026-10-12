@@ -8,7 +8,7 @@
  */
 const Pricing = {
   GST: 0.15,
-  SV: [['logo', 'Logo', '$490'], ['brand', 'Brand identity', '$1,090'], ['web', 'Website', '$1,690'], ['brochure', 'Brochure (4 pages)', '$390'], ['social', 'Social set (4 assets)', '$240'], ['card', 'Business card', '$180'], ['app', 'App UI/UX', 'Quoted'], ['space', 'Space & signage', 'Quoted'], ['mkt', 'Ongoing marketing', 'Quoted']],
+  SV: [['logo', 'Logo', '$490'], ['brand', 'Brand identity', '$1,090'], ['web', 'Website design', '$1,690'], ['brochure', 'Brochure (4 pages)', '$390'], ['social', 'Social set (4 assets)', '$240'], ['card', 'Business card', '$180'], ['app', 'App design', 'Quoted'], ['space', 'Space & signage', 'Quoted'], ['mkt', 'Ongoing marketing', 'Quoted']],
 
   weeks(svc, d) {
     d = d || {};
@@ -29,7 +29,7 @@ const Pricing = {
     const L = [], M = [];
     if (sv('brand')) L.push(['BRAND-01 Brand Starter', 1090]); else if (sv('logo')) L.push(['LOGO-01 Logo Essential', 490]);
     if (sv('web')) {
-      L.push(['WEB-05 Website, up to 5 pages', 1690]);
+      L.push(['WEB-05 Website design, up to 5 pages', 1690]);
       const p = D('pages') || '5';
       if (p == '9+') M.push('Website with 9 or more pages');
       else { const x = +p - 5; if (x) L.push([`WEB-EXTRA ${x} extra page${x > 1 ? 's' : ''} × $180`, x * 180]); }
@@ -43,7 +43,7 @@ const Pricing = {
     if (sv('card') && !sv('brand')) L.push(['CARD-01 Business card', 180]);
     if (sv('brand') && sv('web')) L.push(['LAUNCH-01 Launch bundle saving', -490]);
     if (D('b_guide') == 'Full brand guidelines') M.push('Full brand guidelines');
-    if (sv('app')) M.push('App UI/UX');
+    if (sv('app')) M.push('App design');
     if (sv('space')) M.push('Space and signage');
     if (sv('mkt')) M.push('Ongoing marketing plan');
     if (D('deadline') == 'Priority request') M.push('Priority deadline');

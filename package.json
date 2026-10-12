@@ -7,5 +7,10 @@
     "start": "node server/server.js",
     "check": "node --check js/workflow.js && node --check js/api.js && node --check server/server.js"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0"
+  }
 }

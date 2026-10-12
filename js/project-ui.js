@@ -53,8 +53,9 @@ const PUI = {
   // A direction or version: uploaded images/files, or a demo board.
   visual(role, r, item, v) {
     const files = (item.files || []).map(id => PUI.fileById(r, id)).filter(Boolean);
-    if (!files.length) return item.demo ? PUI.board(item.demo, v || 1, r.biz) : '';
-    return `<div class="cp-gal">${files.map(f => {
+    const fig = item.link ? `<a class="btn alt figma" href="${esc(item.link)}" target="_blank" rel="noopener">${T('open_figma')}</a>` : '';
+    if (!files.length) return (item.demo ? PUI.board(item.demo, v || 1, r.biz) : '') + fig;
+    return fig + `<div class="cp-gal">${files.map(f => {
       const u = API.fileUrl(role, r.id, f);
       return PUI.isImg(f) && u ? `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="${esc(f.name)}" loading="lazy"></a>`
         : `<div class="doc"><span data-no-tr>${esc(f.name)}</span>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${T('dl')} ↗</a>` : ''}</div>`;
@@ -108,6 +109,7 @@ const PUI = {
         ${est.tot ? `<div class="row2"><dt>${T('est_tot')}</dt><dd>${money(est.tot)}</dd></div>` : ''}
         ${(est.manual || []).length ? `<div class="row2"><dt>${T('est_sep')}</dt><dd>${est.manual.map(m => esc(tr(m))).join(', ')}</dd></div>` : ''}
       </dl>
+      ${r.brief ? `<div class="cp-h"><span>${T('br_h')}</span><span>${fmtDate(r.brief.at)}</span></div><dl>${Workflow.BRIEF_KEYS.filter(k => r.brief[k] && String(r.brief[k]).length).map(k => `<div class="row2"><dt>${T('br_' + k)}</dt><dd data-no-tr>${esc(Array.isArray(r.brief[k]) ? r.brief[k].join(', ') : r.brief[k])}</dd></div>`).join('')}</dl>` : ''}
       <div class="cp-h"><span>${T('b_ans')}</span></div>
       <dl>${rows || `<p class="note">${T('b_none')}</p>`}</dl>
     </div>`;
