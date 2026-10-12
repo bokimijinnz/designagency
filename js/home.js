@@ -1,21 +1,37 @@
-/* Home page: mascot that follows the pointer, plus Work and Journal teasers. */
+/* Home page: the scroll story, the live invoice, and Work and Journal teasers. */
 (function () {
-  const hero = $('.hero');
-  if (hero && !matchMedia('(prefers-reduced-motion:reduce)').matches) {
-    const g = $('#ghost'), sd = $('#shadow'), ry = $('.rays');
-    let tx = 0, ty = 0, run = 0;
-    const a = [0, 0], b = [0, 0], c = [0, 0];
-    const set = (el, x, y, p) => { el.style.setProperty('--' + p + 'x', x.toFixed(1) + 'px'); el.style.setProperty('--' + p + 'y', y.toFixed(1) + 'px'); };
-    const tick = () => {
-      a[0] += (tx - a[0]) * .09; a[1] += (ty - a[1]) * .09;
-      b[0] += (tx - b[0]) * .06; b[1] += (ty - b[1]) * .06;
-      c[0] += (tx - c[0]) * .05; c[1] += (ty - c[1]) * .05;
-      set(g, a[0], a[1], 'p'); set(sd, b[0], b[1], 's'); set(ry, c[0], c[1], 'r');
-      if (Math.abs(tx - c[0]) + Math.abs(ty - c[1]) > .5) requestAnimationFrame(tick); else run = 0;
+  /* ---------- scroll story: typing → direction → live invoice ---------- */
+  const story = $('#story');
+  const LINE = {
+    en: 'A small coffee roaster in Auckland. We want a warm, honest brand and a simple website.',
+    ko: '오클랜드의 작은 커피 로스터리예요. 따뜻하고 정직한 브랜드와 간단한 웹사이트가 필요해요.',
+    zh: '我们是奥克兰的一家小型咖啡烘焙店，想要一个温暖真诚的品牌和简单的网站。'
+  };
+  if (story) {
+    const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const stick = $('.st-stick', story), type = $('#st-type'), sug = $$('#st-sug .chip');
+    let last = -1;
+    const tiles = async () => {
+      const works = await API.content.list('works');
+      $('#st-tiles').innerHTML = works.slice(0, 3).map(w => `<div class="st-tile">${workCover(w)}</div>`).join('');
     };
-    const go = () => { if (!run) { run = 1; requestAnimationFrame(tick); } };
-    hero.addEventListener('pointermove', e => { const r = hero.getBoundingClientRect(); tx = e.clientX - r.left - r.width / 2; ty = e.clientY - r.top - r.height / 2; go(); });
-    hero.addEventListener('pointerleave', () => { tx = 0; ty = 0; go(); });
+    tiles();
+    function update() {
+      // 0 → 1 across the story section while it is pinned.
+      const r = story.getBoundingClientRect(), span = story.offsetHeight - innerHeight;
+      const p = reduce ? 1 : Math.min(1, Math.max(0, -r.top / (span || 1)));
+      const stage = p < .36 ? 0 : p < .68 ? 1 : 2;
+      if (stage !== last) { stick.dataset.stage = stage; last = stage; }
+      const t = Math.min(1, p / .3), line = LINE[LANG] || LINE.en;
+      type.textContent = line.slice(0, Math.round(line.length * (stage > 0 ? 1 : t)));
+      stick.classList.toggle('typing', stage === 0 && t < 1);
+      sug.forEach(c => c.classList.toggle('in', (stage > 0 ? 1 : t) >= +c.dataset.at));
+      stick.style.setProperty('--p', p.toFixed(3));
+    }
+    addEventListener('scroll', update, { passive: true });
+    addEventListener('resize', update);
+    Site.onLang(update);
+    update();
   }
 
   async function teasers() {

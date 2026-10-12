@@ -7,7 +7,7 @@
 <meta name="description" content="An independent New Zealand creative studio for branding, websites, digital design and ongoing marketing. Human-designed work, simple online quotes and multilingual support.">
 <link rel="icon" href="assets/img/mascot.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Instrument+Serif:ital@0;1&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Inter:wght@400;500;600;800&family=Bricolage+Grotesque:wght@500;700;800&family=Playfair+Display:wght@500;700&family=Caveat:wght@500;700&family=Archivo+Black&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Inter:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Bricolage+Grotesque:wght@500;700;800&family=Playfair+Display:wght@500;700&family=Caveat:wght@500;700&family=Archivo+Black&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/home.css">
 <link rel="stylesheet" href="css/content.css">
@@ -17,23 +17,54 @@
 <header id="hd"></header>
 
 <main id="top">
-  <div class="hero">
-    <div class="rays" aria-hidden="true"></div>
-    <div class="shadow" id="shadow" aria-hidden="true"></div>
-    <div class="ghost" id="ghost" aria-hidden="true"></div>
-    <div class="grain"></div>
-    <div class="hero-in">
-      <div class="hero-card" id="hq" aria-live="polite">
-        <div class="hq-top"><span>WHETŪ STUDIO</span><span class="hq-live"><i aria-hidden="true"></i>LIVE</span></div>
-        <p class="hq-lead">See your quote instantly, in real time.</p>
-        <div class="chips hq-chips" id="hq-chips"></div>
-        <div class="hq-lines" id="hq-lines"></div>
-        <div class="hq-sum" id="hq-sum"></div>
-        <a class="btn hq-go" id="hq-go" href="estimate.html">Get this quote ↗</a>
+  <section class="h2o">
+    <div class="w h2o-in">
+      <h1 class="h2o-h">Every business deserves to shine.</h1>
+      <p class="h2o-p">A design studio for small businesses in Aotearoa. Tell us about you, see the direction, get your price. All online.</p>
+      <div class="h2o-cta"><a class="btn" href="estimate.html">Get a quote</a><a class="btn line" href="#story">See how it works <svg width="10" height="12" viewBox="0 0 10 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1.5 1.5l7 4.5-7 4.5z"/></svg></a></div>
+    </div>
+  </section>
+
+  <!-- Scroll story: tell us about you → see the direction → get the price -->
+  <section class="story" id="story" aria-label="How it works, in three steps">
+    <div class="st-stick">
+      <ol class="st-steps" aria-hidden="true"><li data-s="0">Tell us</li><li data-s="1">See the direction</li><li data-s="2">Get your price</li></ol>
+      <div class="st-heads">
+        <div class="st-head" data-s="0"><h2>Tell us about your business.</h2><p>A few words is enough. We read every one.</p></div>
+        <div class="st-head" data-s="1"><h2>See the direction we'd take.</h2><p>Logo, colour and type, shaped around your story.</p></div>
+        <div class="st-head" data-s="2"><h2>Get your price, instantly.</h2><p>Transparent prices. No meetings. Everything online.</p></div>
+      </div>
+      <div class="st-panel">
+        <!-- 1. typing -->
+        <div class="st-scene" data-s="0">
+          <div class="st-search"><span class="st-type" id="st-type" data-no-tr></span><i class="st-caret" aria-hidden="true"></i><span class="st-go">Send</span></div>
+          <div class="st-sug" id="st-sug"><span class="st-k">Suggestions</span><span class="chip" data-at="0.45">Brand identity</span><span class="chip" data-at="0.6">Website design</span><span class="chip" data-at="0.72">Warm</span><span class="chip" data-at="0.82">Local</span><span class="chip" data-at="0.9">Honest</span></div>
+          <div class="st-tiles" id="st-tiles"></div>
+        </div>
+        <!-- 2. design direction (an example, drawn in CSS) -->
+        <div class="st-scene" data-s="1">
+          <div class="gd">
+            <aside class="gd-side"><b class="gd-brand" data-no-tr>Kiwi Coffee</b><div class="gd-ic" aria-hidden="true"><i></i><i></i></div>
+              <span class="gd-nav on">Logo <em>+</em></span><span class="gd-nav">Colour <em>+</em></span><span class="gd-nav">Type <em>+</em></span><span class="gd-nav">Website <em>+</em></span></aside>
+            <div class="gd-mid"><h3 class="gd-t">Logo</h3><p>A round seal and a classic serif wordmark. Earthy roast colours signal craft, and the seal reads well on bags, cups and invoices.</p><span class="btn sm gd-b">Direction A</span>
+              <div class="gd-acc"><span>Warm <em>+</em></span><span>Honest <em>+</em></span><span>Local <em>+</em></span><span>Crafted <em>+</em></span></div></div>
+            <div class="gd-art" aria-hidden="true"><div class="gd-seal"><span>K</span></div><div class="gd-wm">Kiwi Coffee Roasters</div><div class="gd-sw"><i></i><i></i><i></i><i></i></div><span class="gd-tag">Example direction</span></div>
+          </div>
+        </div>
+        <!-- 3. live invoice -->
+        <div class="st-scene" data-s="2">
+          <div class="hero-card" id="hq" aria-live="polite">
+            <div class="hq-top"><span>WHETŪ STUDIO</span><span class="hq-live"><i aria-hidden="true"></i>LIVE</span></div>
+            <p class="hq-lead">See your quote instantly, in real time.</p>
+            <div class="chips hq-chips" id="hq-chips"></div>
+            <div class="hq-lines" id="hq-lines"></div>
+            <div class="hq-sum" id="hq-sum"></div>
+            <a class="btn hq-go" id="hq-go" href="estimate.html">Get this quote ↗</a>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="hb2"><a href="#how" aria-label="Scroll down"><svg width="26" height="40" viewBox="0 0 24 40" fill="none" stroke="#fff" stroke-width="1.6"><path d="M12 4v32M2 26l10 10 10-10"/></svg></a></div>
-  </div>
+  </section>
 
   <section id="how"><div class="w">
     <span class="sec-o oc oc1" aria-hidden="true"></span>

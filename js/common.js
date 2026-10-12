@@ -36,30 +36,67 @@ const Site = {
     const page = document.body.dataset.page || '';
     const cfg = window.STUDIO_CONFIG || {};
     const on = p => (page === p ? ' aria-current="page"' : '');
-    hd.innerHTML = `<div class="w hb">
+    const chev = '<svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg>';
+    const svc = [
+      ['Logo & brand identity', 'A mark, colours and type that people remember'],
+      ['Website design', 'Page designs for desktop and mobile, in Figma and PDF'],
+      ['App design', 'Screens and flows, ready for your developer'],
+      ['Print & social', 'Brochures, cards and social templates'],
+      ['Signage & spaces', 'Shopfronts, interiors and vehicles'],
+      ['Ongoing marketing', 'Social, search ads and blog, every month']
+    ];
+    hd.innerHTML = `<div class="hb">
       <a class="logo" href="index.html"><span class="gh lg" role="img" aria-label="WHETŪ mascot"></span><span>${esc(cfg.name || 'WHETŪ STUDIO')}</span></a>
-      <nav id="nv">
+      <nav id="nv" aria-label="Main">
+        <button class="nv-t" data-mm="svc" aria-expanded="false">Services ${chev}</button>
+        <button class="nv-t" data-mm="studio" aria-expanded="false">Studio ${chev}</button>
         <a href="work.html"${on('work')}>Work</a>
         <a href="journal.html"${on('journal')}>Journal</a>
-        <a href="index.html#how">How It Works</a>
-        <a href="index.html#pricing">Pricing</a>
-        <a href="login.html"${on('login') || on('portal')}>Client login</a>
-        ${cfg.demoAutoLogin ? `<a href="admin.html"${on('admin')}>Designer portal</a>` : ''}
-        <a class="btn sm" href="estimate.html">Get an Estimate ↗</a>
       </nav>
       <div class="hr">
-        <div class="lsw"><select id="langsel" aria-label="Language"><option value="en">English</option><option value="ko">한국어</option><option value="zh">中文</option></select></div>
-        <button id="menu" aria-expanded="false" aria-controls="nv">Menu</button>
-      </div></div>`;
+        <a class="hr-l" href="index.html#pricing">Pricing</a>
+        <div class="lsw"><select id="langsel" aria-label="Language"><option value="en">EN</option><option value="ko">KO</option><option value="zh">中文</option></select></div>
+        <a class="btn line sm" href="login.html"${on('login') || on('portal')}>Client login</a>
+        <a class="btn sm" href="estimate.html">Get a quote</a>
+        <button id="menu" aria-expanded="false" aria-controls="mm-mobile">Menu</button>
+      </div>
+    </div>
+    <div class="mm" id="mm-svc" hidden>
+      <div class="mm-l"><span class="mm-k">Services</span><h3>Explore the studio</h3><p>Everything a small business needs to look the part, quoted online in minutes.</p><a class="btn sm" href="estimate.html">Get a quote</a></div>
+      <div class="mm-m"><span class="mm-k">What we design</span><div class="mm-grid">${svc.map(x => `<a href="estimate.html"><b>${x[0]}</b><span>${x[1]}</span></a>`).join('')}</div></div>
+      <a class="mm-f" href="index.html#story"><span class="mm-k">Featured</span><div class="mm-inv"><i></i><i></i><i></i><b>$2,633.50</b></div><b>Live invoice</b><span>Tap what you need and watch your price update in real time.</span></a>
+    </div>
+    <div class="mm" id="mm-studio" hidden>
+      <div class="mm-l"><span class="mm-k">Studio</span><h3>How we work</h3><p>No meetings. Everything happens online, in your own private project space.</p><a class="btn sm line" href="index.html#how">How it works</a></div>
+      <div class="mm-m"><span class="mm-k">Pages</span><div class="mm-grid">
+        <a href="work.html"><b>Work</b><span>Selected brands and websites</span></a>
+        <a href="journal.html"><b>Journal</b><span>Notes on branding and pricing</span></a>
+        <a href="index.html#pricing"><b>Pricing</b><span>Starting prices, confirmed by a human</span></a>
+        <a href="login.html"><b>Client login</b><span>Your quote, messages and files</span></a>
+        ${cfg.demoAutoLogin ? `<a href="admin.html"><b>Designer portal</b><span>The studio side of every project</span></a>` : ''}
+      </div></div>
+      <a class="mm-f dark" href="estimate.html"><span class="mm-k">Start here</span><span class="mm-star gh" aria-hidden="true"></span><b>Tell us about your business</b><span>Three short steps. See your price and timeline straight away.</span></a>
+    </div>
+    <div class="mm-mobile" id="mm-mobile" hidden>
+      <a href="estimate.html">Get a quote</a><a href="work.html">Work</a><a href="journal.html">Journal</a><a href="index.html#how">How it works</a><a href="index.html#pricing">Pricing</a><a href="login.html">Client login</a>
+      ${cfg.demoAutoLogin ? '<a href="admin.html">Designer portal</a>' : ''}
+    </div>`;
+    hd.classList.add('lt');
     $('#langsel').value = LANG;
     $('#langsel').addEventListener('change', e => Site.setLang(e.target.value));
-    $('#menu').onclick = e => { const o = $('#nv').classList.toggle('o'); e.currentTarget.setAttribute('aria-expanded', o); };
-    $('#nv').onclick = e => { if (e.target.tagName == 'A') $('#nv').classList.remove('o'); };
 
-    // Dark, transparent header while the home hero is on screen; light everywhere else.
-    const hero = $('.hero');
-    if (!hero) { hd.classList.add('lt'); return; }
-    new IntersectionObserver(en => hd.classList.toggle('lt', !en[0].isIntersecting), { rootMargin: '-68px 0px 0px 0px' }).observe(hero);
+    // Mega menus: open on click (and hover on wide screens), close on outside click or Escape.
+    const close = () => { $$('.mm', hd).forEach(m => { m.hidden = true; }); $$('[data-mm]', hd).forEach(b => b.setAttribute('aria-expanded', 'false')); hd.classList.remove('open'); };
+    const open = k => { close(); $('#mm-' + k).hidden = false; $(`[data-mm="${k}"]`, hd).setAttribute('aria-expanded', 'true'); hd.classList.add('open'); };
+    $$('[data-mm]', hd).forEach(b => {
+      b.addEventListener('click', () => (b.getAttribute('aria-expanded') === 'true' ? close() : open(b.dataset.mm)));
+      b.addEventListener('mouseenter', () => { if (matchMedia('(hover:hover) and (min-width:901px)').matches) open(b.dataset.mm); });
+    });
+    hd.addEventListener('mouseleave', () => { if (matchMedia('(hover:hover)').matches) close(); });
+    document.addEventListener('click', e => { if (!hd.contains(e.target)) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    $('#menu').onclick = e => { const m = $('#mm-mobile'); m.hidden = !m.hidden; e.currentTarget.setAttribute('aria-expanded', !m.hidden); };
+    hd.addEventListener('click', e => { if (e.target.closest('.mm a, .mm-mobile a')) { close(); $('#mm-mobile').hidden = true; } });
   },
 
   footer() {
