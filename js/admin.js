@@ -129,9 +129,10 @@
   }
 
   /* ---------- AI brief (studio-only drafts from server/agents.js) ---------- */
-  const aiBadge = r => { const b = r.ai && r.ai.brief; return !b ? '' : b.status === 'running' ? '…' : b.status === 'ready' ? '✓' : b.status === 'error' ? '!' : ''; };
+  const aiBadge = r => { const b = (r.ai && r.ai.brief) || (isLocal && window.SAMPLE_BRIEF ? { status: 'ready' } : null); return !b ? '' : b.status === 'running' ? '…' : b.status === 'ready' ? '✓' : b.status === 'error' ? '!' : ''; };
   function aiTab(r) {
-    const b = r.ai && r.ai.brief;
+    // Demo mode has no AI: show the example brief so the screen can be seen.
+    const b = (r.ai && r.ai.brief) || (isLocal && window.SAMPLE_BRIEF ? { status: 'ready', demo: true, data: window.SAMPLE_BRIEF } : null);
     const run = aiOn.enabled ? `<button class="btn" data-act="ai-run">${T(b ? 'ai_rerun' : 'ai_run')}</button>` : '';
     if (!b || b.status !== 'ready') {
       const msg = !b ? (aiOn.enabled ? T('ai_none') : T(isLocal ? 'ai_off_demo' : 'ai_off')) : b.status === 'running' ? T('ai_running') : T('ai_error', b.error || '');
@@ -383,8 +384,8 @@
       return;
     }
     if (a === 'ai-run') { try { await API.ai.intake(r.id); Site.toast(T('ai_running')); await loadReqs(); rerender(); } catch (x) { Site.toast(x.message); } return; }
-    if (a === 'ai-quote') { const x = r.ai.brief.data; ui.qd[r.id] = Object.assign(draftFor(r), { lines: x.quote.map(q => ({ label: q.label, amount: q.amount })), notes: x.quote_notes || '' }); ui.tab = 'quote'; return rerender(); }
-    if (a === 'ai-ask') { ui.msg = r.ai.brief.data.questions.map((q, i) => `${i + 1}. ${q}`).join('\n'); ui.tab = 'msg'; return rerender(); }
+    if (a === 'ai-quote') { const x = ((r.ai && r.ai.brief) ? r.ai.brief.data : window.SAMPLE_BRIEF); ui.qd[r.id] = Object.assign(draftFor(r), { lines: x.quote.map(q => ({ label: q.label, amount: q.amount })), notes: x.quote_notes || '' }); ui.tab = 'quote'; return rerender(); }
+    if (a === 'ai-ask') { ui.msg = ((r.ai && r.ai.brief) ? r.ai.brief.data : window.SAMPLE_BRIEF).questions.map((q, i) => `${i + 1}. ${q}`).join('\n'); ui.tab = 'msg'; return rerender(); }
     if (a === 'ai-reply') {
       const p = $('#ai-p'); b.disabled = true; p.textContent = T('ai_writing');
       try { const out = await API.ai.reply(r.id); ui.msg = out.draft; rerender(); } catch (x) { p.textContent = x.message; } finally { b.disabled = false; }
